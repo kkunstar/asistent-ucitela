@@ -30,6 +30,7 @@
   --t-stopky: #2471A3;
   --t-skupiny: #3C8D3A;
   --t-hluk: #C2418F;
+  --t-tabula: #2F5D6E;
   --fur: #F0A050; --fur-dark: #CF7A2E; --fur-light: #FCE6CC; --cat-ink: #3A2618; --cat-pink: #E98A9A;
   --mood0: #DCEBF2; --mood1: #E2EFD9; --mood2: #F6EDC8; --mood3: #F8DCC0; --mood4: #F6C4C4;
 
@@ -51,7 +52,7 @@
   :root:not([data-theme="light"]) {
     --bg: #0E1613; --surface: #16211D; --surface-2: #1E2B26; --ink: #E5EEE9; --muted: #9AACA4; --line: #2A3933;
     --accent: #4CC497; --accent-ink: #0E1613;
-    --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A; --t-hluk: #E06AAE;
+    --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A; --t-hluk: #E06AAE; --t-tabula: #6FA6BC;
     --mood0: #1C2D36; --mood1: #1E3326; --mood2: #3A3420; --mood3: #43301F; --mood4: #4A2224;
     --c-prazdniny: #46BE88; --c-maturita: #9C7DE8; --c-testovanie: #F19A3E; --c-prijimacky: #4E9FD6; --c-skola: #9AACA4; --c-vlastne: #EB6CA0;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
@@ -61,7 +62,7 @@
 :root[data-theme="dark"] {
   --bg: #0E1613; --surface: #16211D; --surface-2: #1E2B26; --ink: #E5EEE9; --muted: #9AACA4; --line: #2A3933;
   --accent: #4CC497; --accent-ink: #0E1613;
-  --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A; --t-hluk: #E06AAE;
+  --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A; --t-hluk: #E06AAE; --t-tabula: #6FA6BC;
     --mood0: #1C2D36; --mood1: #1E3326; --mood2: #3A3420; --mood3: #43301F; --mood4: #4A2224;
   --c-prazdniny: #46BE88; --c-maturita: #9C7DE8; --c-testovanie: #F19A3E; --c-prijimacky: #4E9FD6; --c-skola: #9AACA4; --c-vlastne: #EB6CA0;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
@@ -105,7 +106,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .next-card .count { margin-top: auto; font-family: var(--f-display); font-weight: 800; font-size: 2.2rem; line-height: 1; }
 .next-card .count small { font-size: 1rem; font-weight: 500; opacity: .8; }
 
-.tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.tile.wide { grid-column: span 2; flex-direction: row; align-items: center; gap: 22px; background: linear-gradient(120deg, color-mix(in srgb, var(--c) 10%, var(--surface)), var(--surface) 70%); }
+.tile.wide h2 { font-size: 1.5rem; }
+.tile.wide p { margin: 4px 0 0; }
+@media (max-width: 560px) { .tile.wide { flex-direction: column; align-items: flex-start; gap: 10px; } .tile.wide h2 { font-size: 1.2rem; } }
 @media (max-width: 1060px) { .tiles .icon { width: 76px; height: 76px; border-radius: 22px; } .tiles .icon svg { width: 44px; height: 44px; } .tile h2 { font-size: 1.15rem; } }
 .tile {
   --c: var(--accent);
@@ -223,6 +228,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 #view-casovac { --tc: var(--t-casovac); }
 #view-stopky { --tc: var(--t-stopky); }
 #view-hlukomer { --tc: var(--t-hluk); }
+#view-tabula { --tc: var(--t-tabula); }
 #view-skupiny { --tc: var(--t-skupiny); --g0: var(--t-skupiny); --g1: var(--t-kalkulacka); --g2: var(--t-cislo); --g3: var(--t-casovac); --g4: var(--t-mena); --g5: var(--t-jednotky); --g6: var(--t-kalendar); --g7: var(--t-stopky); }
 .two-col { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .stack { display: flex; flex-direction: column; gap: 16px; }
@@ -315,6 +321,68 @@ textarea.input { min-height: 230px; resize: vertical; line-height: 1.45; }
 kbd { font-family: var(--f-mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; font-size: .85em; }
 
 footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: center; }
+
+/* tabuľa */
+body.board-mode .wrap { max-width: 1800px; }
+.board-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 13px 6px 9px; cursor: pointer; font-weight: 700; font-size: .9rem; }
+.chips button i { width: 12px; height: 12px; border-radius: 4px; background: var(--c); flex: none; }
+.chips button::before { content: "+"; color: var(--muted); font-weight: 800; margin-right: -2px; }
+.chips button[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 16%, var(--surface)); border-color: var(--c); }
+.chips button[aria-pressed="true"]::before { content: "✓"; color: var(--c); }
+.board { position: relative; border-radius: var(--r); border: 1px dashed var(--line); background-color: color-mix(in srgb, var(--surface-2) 55%, var(--bg)); background-image: radial-gradient(var(--line) 1.3px, transparent 1.4px); background-size: 22px 22px; min-height: 70vh; }
+.board:fullscreen { height: 100% !important; overflow: auto; border-radius: 0; border: 0; background-color: var(--bg); }
+.board-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 20px; font-size: 1.05rem; }
+.widget { position: absolute; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.widget.dragging { box-shadow: 0 24px 48px rgba(0,0,0,.28); }
+.w-head { display: flex; align-items: center; gap: 9px; padding: 6px 6px 6px 8px; cursor: grab; background: color-mix(in srgb, var(--c) 14%, var(--surface)); border-bottom: 1px solid var(--line); touch-action: none; user-select: none; -webkit-user-select: none; }
+.widget.dragging .w-head { cursor: grabbing; }
+.w-head .icon { width: 30px; height: 30px; border-radius: 9px; box-shadow: none; flex: none; }
+.w-head .icon svg { width: 19px; height: 19px; }
+.w-head b { font-family: var(--f-display); font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-btn { margin-left: auto; border: 0; background: transparent; width: 32px; height: 32px; border-radius: 9px; cursor: pointer; color: var(--muted); display: grid; place-items: center; flex: none; }
+.w-btn + .w-btn { margin-left: 0; }
+.w-btn:hover { background: var(--surface-2); color: var(--ink); }
+.w-body { flex: 1; min-height: 0; overflow: auto; container-type: inline-size; }
+.w-resize { position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; cursor: nwse-resize; touch-action: none; background: linear-gradient(135deg, transparent 52%, var(--muted) 52% 58%, transparent 58% 68%, var(--muted) 68% 74%, transparent 74%); opacity: .7; }
+.board.stacked { display: flex; flex-direction: column; gap: 14px; padding: 10px; height: auto !important; min-height: 50vh; }
+.board.stacked .widget { position: relative; left: auto !important; top: auto !important; width: auto !important; height: auto !important; max-height: 85vh; }
+.board.stacked .w-resize { display: none; }
+.board.stacked .w-head { cursor: default; }
+.w-body .panel { border: 0; border-radius: 0; background: transparent; padding: 14px; }
+.w-body .panel:fullscreen { background: var(--surface); padding: 4vw; }
+.w-body .two-col, .w-body .cal-layout, .w-body .calc-layout, .w-body .noise-layout { gap: 0; }
+.w-body .panel + .panel, .w-body .cal-side .panel { border-top: 1px solid var(--line); }
+.w-body .cal-side { gap: 0; }
+.w-body .kbd-hint { display: none; }
+.w-body .stage { min-height: 0; }
+.w-body .two-col > .stage, .w-body .noise-layout > .noise-stage { order: -1; }
+.w-body .ring { width: min(320px, 72cqi); }
+.w-body .source { padding: 0 14px 14px; margin: 0; }
+.w-body .tool-body > .stack { gap: 0; }
+.w-body .tool-body > .stack > .seg { margin: 14px 14px 0; }
+.w-body .big-out { font-size: clamp(2.4rem, 17cqi, 9rem); }
+.w-body .big-out.many { font-size: clamp(1.4rem, 7cqi, 4rem); }
+.w-body .name-out { font-size: clamp(1.8rem, 10cqi, 5.5rem); }
+.w-body .name-out.many { font-size: clamp(1.2rem, 5cqi, 2.6rem); }
+.w-body .clock { font-size: clamp(2rem, 13cqi, 5.6rem); }
+.w-body .sw-clock { font-size: clamp(2.4rem, 15cqi, 8rem); padding-block: 14px 6px; }
+.w-body .mood-text { font-size: clamp(1.1rem, 5cqi, 2.2rem); }
+.w-body .unit-out { font-size: clamp(1.5rem, 7cqi, 3rem); }
+.w-body .coin-wrap { width: min(220px, 55cqi); height: min(220px, 55cqi); }
+.w-body .calc-res { font-size: clamp(1.6rem, 9cqi, 2.6rem); }
+.w-body .ck { padding: 12px 0; font-size: 1.2rem; }
+@container (max-width: 760px) {
+  .tool-body .two-col, .tool-body .cal-layout, .tool-body .calc-layout, .tool-body .noise-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@container (max-width: 520px) {
+  .tool-body .cal-day { min-height: 50px; padding: 3px; }
+  .tool-body .chip { font-size: 0; height: 5px; padding: 0; }
+  .tool-body .conv-grid { grid-template-columns: 1fr; }
+  .tool-body .swap { justify-self: center; transform: rotate(90deg); }
+  .tool-body .noise-stats b { font-size: 1rem; }
+}
 
 /* hlukomer */
 .noise-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
@@ -430,6 +498,10 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
       <circle cx="14" cy="15" r="8"/><circle cx="34" cy="15" r="8"/><circle cx="24" cy="33" r="8"/>
       <g fill="#fff" stroke="none"><circle cx="11.5" cy="15" r="2"/><circle cx="16.5" cy="15" r="2"/><circle cx="31.5" cy="15" r="2"/><circle cx="36.5" cy="15" r="2"/><circle cx="21.5" cy="33" r="2"/><circle cx="26.5" cy="33" r="2"/></g>
     </g>
+    <g id="i-tabula" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="7" width="38" height="28" rx="4"/><path d="M17 35l-4 8M31 35l4 8"/>
+      <rect x="10.5" y="12.5" width="11" height="8" rx="1.5" fill="#fff" stroke="none"/><rect x="25.5" y="12.5" width="12" height="17" rx="1.5" fill="#fff" stroke="none" opacity=".75"/><rect x="10.5" y="23.5" width="11" height="6" rx="1.5" fill="#fff" stroke="none" opacity=".75"/>
+    </g>
     <g id="i-hluk" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
       <rect x="17" y="6" width="14" height="22" rx="7"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7M18 42h12"/>
       <path d="M5 16v6M43 16v6" stroke-width="2.6"/>
@@ -473,6 +545,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
     </div>
 
     <nav class="tiles" aria-label="Nástroje">
+      <a class="tile wide" href="#tabula" style="--c: var(--t-tabula)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-tabula"/></svg></span><div><h2>Tabuľa</h2><p>Poskladajte si vlastnú nástenku: ľubovoľné nástroje vedľa seba, presúvateľné a s nastaviteľnou veľkosťou. Ideálne na projektor.</p></div></a>
       <a class="tile" href="#kalendar" style="--c: var(--t-kalendar)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-kalendar"/></svg></span><h2>Kalendár</h2><p>Prázdniny, maturity, Testovanie 9, prijímačky</p></a>
       <a class="tile" href="#kalkulacka" style="--c: var(--t-kalkulacka)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-kalkulacka"/></svg></span><h2>Kalkulačka</h2><p>Zátvorky, percentá a história výpočtov</p></a>
       <a class="tile" href="#cislo" style="--c: var(--t-cislo)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-cislo"/></svg></span><h2>Náhodné číslo</h2><p>Ľubovoľné číslo alebo vlastné rozpätie</p></a>
@@ -688,6 +761,27 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
         <div class="groups" id="gOut"></div>
       </div>
     </div>
+  </section>
+
+  <!-- TABUĽA -->
+  <section data-view="tabula" id="view-tabula" hidden>
+    <div class="view-head">
+      <a class="back" href="#domov"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Nástroje</a>
+      <span class="icon" style="--c: var(--t-tabula)"><svg viewBox="0 0 48 48"><use href="#i-tabula"/></svg></span>
+      <h1>Tabuľa</h1>
+      <span class="spacer"></span>
+      <div class="row">
+        <button class="btn icon-btn" id="boardArrange">Usporiadať</button>
+        <button class="btn icon-btn" id="boardClear">Odstrániť všetky</button>
+        <button class="btn icon-btn" id="boardFs">Na celú obrazovku</button>
+      </div>
+    </div>
+    <div class="board-bar">
+      <span class="label">Nástroje na tabuli (kliknutím pridáte alebo odstránite)</span>
+      <div class="chips" id="boardChips"></div>
+    </div>
+    <div class="board" id="board"><p class="board-empty" id="boardEmpty" hidden>Tabuľa je prázdna. Pridajte nástroje tlačidlami vyššie.</p></div>
+    <p class="small muted">Nástroj presuniete ťahaním za horný pruh, veľkosť zmeníte ťahaním za pravý dolný roh. Rozloženie si tento prehliadač zapamätá.</p>
   </section>
 
   <!-- HLUKOMER -->
@@ -1725,6 +1819,123 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
     if ((e.key === "l" || e.key === "L") && current === "stopky") swLap();
   });
 
+  /* ---------- tabuľa ---------- */
+  const board = $("#board");
+  const TOOLS = $$(".tiles .tile").filter(a => a.getAttribute("href") !== "#tabula").map(a => ({ id: a.getAttribute("href").slice(1), name: $("h2", a).textContent, color: a.style.getPropertyValue("--c") }));
+  const toolById = id => TOOLS.find(t => t.id === id);
+  const DEF_SIZE = { kalendar: [780, 640], kalkulacka: [380, 640], cislo: [440, 480], mena: [480, 560], skupiny: [560, 560], jednotky: [540, 560], minca: [420, 560], casovac: [420, 600], stopky: [430, 500], hlukomer: [470, 660] };
+  const bodies = {};
+  $$("[data-view]").forEach(sec => {
+    const id = sec.dataset.view;
+    if (id === "domov" || id === "tabula") return;
+    const b = document.createElement("div"); b.className = "tool-body";
+    Array.from(sec.children).filter(c => !c.classList.contains("view-head")).forEach(c => b.appendChild(c));
+    sec.appendChild(b);
+    bodies[id] = { body: b, home: sec };
+  });
+  let layout = (store.get("ua-tabula", null) || []).filter(l => bodies[l.id]);
+  let firstBoard = !store.get("ua-tabula", null);
+  const widgets = {};
+  let zTop = 10, boardOn = false;
+  const saveBoard = () => store.set("ua-tabula", layout);
+  const GAP = 16;
+  function arrange(ids) {
+    const W = Math.max(320, board.clientWidth);
+    let x = GAP, y = GAP, rowH = 0;
+    return ids.map(id => {
+      const [dw, dh] = DEF_SIZE[id] || [440, 520];
+      const w = Math.min(dw, W - 2 * GAP);
+      if (x + w > W - GAP && x > GAP) { x = GAP; y += rowH + GAP; rowH = 0; }
+      const item = { id, x, y, w, h: dh, z: ++zTop };
+      x += w + GAP; rowH = Math.max(rowH, dh);
+      return item;
+    });
+  }
+  function fitBoard() {
+    const stacked = board.clientWidth < 700;
+    board.classList.toggle("stacked", stacked);
+    $("#boardEmpty").hidden = layout.length > 0;
+    if (stacked) { board.style.height = ""; return; }
+    const bottom = layout.reduce((m, l) => Math.max(m, l.y + l.h), 0);
+    board.style.height = Math.max(bottom + GAP * 2, window.innerHeight * 0.7) + "px";
+  }
+  function applyPos(l) { const w = widgets[l.id]; if (!w) return; Object.assign(w.style, { left: l.x + "px", top: l.y + "px", width: l.w + "px", height: l.h + "px", zIndex: l.z }); }
+  function renderChips() {
+    const wrap = $("#boardChips"); wrap.innerHTML = "";
+    TOOLS.forEach(t => {
+      const b = document.createElement("button"); b.type = "button";
+      b.style.setProperty("--c", t.color);
+      b.setAttribute("aria-pressed", layout.some(l => l.id === t.id));
+      b.innerHTML = "<i></i>"; b.append(t.name);
+      b.addEventListener("click", () => layout.some(l => l.id === t.id) ? removeWidget(t.id) : addWidget(t.id));
+      wrap.appendChild(b);
+    });
+  }
+  function makeWidget(l) {
+    const t = toolById(l.id);
+    const w = document.createElement("div"); w.className = "widget"; w.style.setProperty("--c", t.color);
+    w.innerHTML = `<div class="w-head"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-${l.id === "hlukomer" ? "hluk" : l.id}"/></svg></span><b></b>
+      <a class="w-btn" title="Otvoriť samostatne" aria-label="Otvoriť samostatne" href="#${l.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+      <button class="w-btn" type="button" title="Odstrániť z tabule" aria-label="Odstrániť z tabule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="w-body"></div><div class="w-resize" title="Zmeniť veľkosť"></div>`;
+    $("b", w).textContent = t.name;
+    $("button.w-btn", w).addEventListener("click", () => removeWidget(l.id));
+    w.addEventListener("pointerdown", () => { const it = layout.find(x => x.id === l.id); if (it && it.z !== zTop) { it.z = ++zTop; w.style.zIndex = it.z; saveBoard(); } });
+    const drag = (handle, onMove) => {
+      handle.addEventListener("pointerdown", e => {
+        if (e.button !== 0 || e.target.closest(".w-btn") || board.classList.contains("stacked")) return;
+        e.preventDefault();
+        const it = layout.find(x => x.id === l.id), sx = e.clientX, sy = e.clientY, o = { ...it };
+        handle.setPointerCapture(e.pointerId); w.classList.add("dragging");
+        const move = ev => { onMove(it, o, ev.clientX - sx, ev.clientY - sy); applyPos(it); fitBoard(); };
+        const up = () => { handle.removeEventListener("pointermove", move); handle.removeEventListener("pointerup", up); handle.removeEventListener("pointercancel", up); w.classList.remove("dragging"); saveBoard(); window.dispatchEvent(new Event("resize")); };
+        handle.addEventListener("pointermove", move); handle.addEventListener("pointerup", up); handle.addEventListener("pointercancel", up);
+      });
+    };
+    drag($(".w-head", w), (it, o, dx, dy) => { it.x = Math.max(0, Math.min(board.clientWidth - 80, o.x + dx)); it.y = Math.max(0, o.y + dy); });
+    drag($(".w-resize", w), (it, o, dx, dy) => { it.w = Math.max(260, Math.min(board.clientWidth - it.x, o.w + dx)); it.h = Math.max(200, o.h + dy); });
+    widgets[l.id] = w; board.appendChild(w); applyPos(l);
+    return w;
+  }
+  function mountBoard() {
+    boardOn = true;
+    if (firstBoard) { layout = arrange(["casovac", "mena", "hlukomer"]); firstBoard = false; saveBoard(); }
+    layout.forEach(l => { zTop = Math.max(zTop, l.z || 0); const w = widgets[l.id] || makeWidget(l); $(".w-body", w).appendChild(bodies[l.id].body); });
+    renderChips(); fitBoard();
+    requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+  }
+  function unmountBoard() {
+    boardOn = false;
+    Object.keys(bodies).forEach(id => { if (bodies[id].body.parentNode !== bodies[id].home) bodies[id].home.appendChild(bodies[id].body); });
+  }
+  function addWidget(id) {
+    const [dw, dh] = DEF_SIZE[id] || [440, 520];
+    const W = board.clientWidth, n = layout.length;
+    const l = { id, x: Math.min(GAP + (n * 28) % 220, Math.max(0, W - dw - GAP)), y: Math.max(GAP, -board.getBoundingClientRect().top + GAP), w: Math.min(dw, W - 2 * GAP), h: dh, z: ++zTop };
+    layout.push(l); saveBoard();
+    const w = makeWidget(l); $(".w-body", w).appendChild(bodies[id].body);
+    renderChips(); fitBoard();
+    if (board.classList.contains("stacked")) w.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.dispatchEvent(new Event("resize"));
+  }
+  function removeWidget(id) {
+    const w = widgets[id]; if (!w) return;
+    bodies[id].home.appendChild(bodies[id].body);
+    w.remove(); delete widgets[id];
+    layout = layout.filter(l => l.id !== id); saveBoard();
+    if (id === "hlukomer") { if (N.running) stopMic(); if (N.demo) { N.demo = false; $("#demoCheck").checked = false; $("#demoBox").hidden = true; stopLoop(); } }
+    renderChips(); fitBoard();
+  }
+  $("#boardArrange").addEventListener("click", () => { layout = arrange(layout.map(l => l.id)); layout.forEach(applyPos); saveBoard(); fitBoard(); window.dispatchEvent(new Event("resize")); });
+  $("#boardClear").addEventListener("click", () => { layout.map(l => l.id).forEach(removeWidget); });
+  $("#boardFs").addEventListener("click", () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if (board.requestFullscreen) board.requestFullscreen().catch(() => {});
+  });
+  if (!document.fullscreenEnabled) $("#boardFs").hidden = true;
+  document.addEventListener("fullscreenchange", () => { $("#boardFs").textContent = document.fullscreenElement === board ? "Zavrieť celú obrazovku" : "Na celú obrazovku"; setTimeout(() => window.dispatchEvent(new Event("resize")), 50); });
+  window.addEventListener("resize", () => { if (boardOn) fitBoard(); });
+
   /* ---------- navigácia ---------- */
   const VIEWS = $$("[data-view]").map(v => v.dataset.view);
   function route() {
@@ -1732,7 +1943,10 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
     if (!VIEWS.includes(id)) id = "domov";
     current = id;
     $$("[data-view]").forEach(v => { v.hidden = v.dataset.view !== id; });
-    if (id !== "hlukomer") { if (N.running) stopMic(); if (N.demo) { N.demo = false; $("#demoCheck").checked = false; $("#demoBox").hidden = true; stopLoop(); } } else drawNoise();
+    if (id === "tabula") mountBoard(); else unmountBoard();
+    document.body.classList.toggle("board-mode", id === "tabula");
+    const keepNoise = id === "hlukomer" || (id === "tabula" && layout.some(l => l.id === "hlukomer"));
+    if (!keepNoise) { if (N.running) stopMic(); if (N.demo) { N.demo = false; $("#demoCheck").checked = false; $("#demoBox").hidden = true; stopLoop(); } } else drawNoise();
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);

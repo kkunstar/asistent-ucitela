@@ -4,6 +4,7 @@ Webstránka s nástrojmi pre učiteľov na každý deň. Funguje v prehliadači,
 
 ## Čo obsahuje
 
+- **Tabuľa:** vlastná nástenka, na ktorú si poskladáte ľubovoľné nástroje ako widgety, presúvate ich a meníte ich veľkosť
 - **Kalendár školského roka 2026/2027:** prázdniny (aj jarné podľa krajov), maturity, Testovanie 9, prijímacie skúšky a vlastné termíny
 - **Meniny:** kto má meniny dnes a kto zajtra
 - **Citát dňa:** každý deň iný citát o vzdelávaní, výchove, psychológii a vede
