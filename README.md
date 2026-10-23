@@ -14,6 +14,7 @@ Webstránka s nástrojmi pre učiteľov na každý deň. Funguje v prehliadači,
 - **Prevod jednotiek:** dĺžka, hmotnosť, objem, plocha, čas, rýchlosť, teplota, dáta
 - **Hod mincou** s vlastnými možnosťami
 - **Časovač** so zvukovým signálom a **stopky** s medzičasmi
+- **Hlukomer:** meria hluk v triede mikrofónom; mačka Micka spí, kým je ticho, a pri hluku sa zobúdza až rozčúli (mikrofón funguje cez https alebo pri otvorení súboru, zvuk sa nikam neodosiela)
 
 Väčšinu nástrojov je možné zobraziť na celú obrazovku, napríklad pre projektor.
 

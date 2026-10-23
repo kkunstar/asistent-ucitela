@@ -29,6 +29,9 @@
   --t-casovac: #D22F4B;
   --t-stopky: #2471A3;
   --t-skupiny: #3C8D3A;
+  --t-hluk: #C2418F;
+  --fur: #F0A050; --fur-dark: #CF7A2E; --fur-light: #FCE6CC; --cat-ink: #3A2618; --cat-pink: #E98A9A;
+  --mood0: #DCEBF2; --mood1: #E2EFD9; --mood2: #F6EDC8; --mood3: #F8DCC0; --mood4: #F6C4C4;
 
   --c-prazdniny: #2E9E6B;
   --c-maturita: #7650C9;
@@ -48,7 +51,8 @@
   :root:not([data-theme="light"]) {
     --bg: #0E1613; --surface: #16211D; --surface-2: #1E2B26; --ink: #E5EEE9; --muted: #9AACA4; --line: #2A3933;
     --accent: #4CC497; --accent-ink: #0E1613;
-    --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A;
+    --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A; --t-hluk: #E06AAE;
+    --mood0: #1C2D36; --mood1: #1E3326; --mood2: #3A3420; --mood3: #43301F; --mood4: #4A2224;
     --c-prazdniny: #46BE88; --c-maturita: #9C7DE8; --c-testovanie: #F19A3E; --c-prijimacky: #4E9FD6; --c-skola: #9AACA4; --c-vlastne: #EB6CA0;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
     color-scheme: dark;
@@ -57,7 +61,8 @@
 :root[data-theme="dark"] {
   --bg: #0E1613; --surface: #16211D; --surface-2: #1E2B26; --ink: #E5EEE9; --muted: #9AACA4; --line: #2A3933;
   --accent: #4CC497; --accent-ink: #0E1613;
-  --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A;
+  --t-kalendar: #F0714F; --t-kalkulacka: #6A7CE6; --t-cislo: #F1AE2B; --t-mena: #23B4C1; --t-jednotky: #9675E2; --t-minca: #D3A531; --t-casovac: #EC5470; --t-stopky: #4597CF; --t-skupiny: #5FB35A; --t-hluk: #E06AAE;
+    --mood0: #1C2D36; --mood1: #1E3326; --mood2: #3A3420; --mood3: #43301F; --mood4: #4A2224;
   --c-prazdniny: #46BE88; --c-maturita: #9C7DE8; --c-testovanie: #F19A3E; --c-prijimacky: #4E9FD6; --c-skola: #9AACA4; --c-vlastne: #EB6CA0;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme: dark;
@@ -100,7 +105,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .next-card .count { margin-top: auto; font-family: var(--f-display); font-weight: 800; font-size: 2.2rem; line-height: 1; }
 .next-card .count small { font-size: 1rem; font-weight: 500; opacity: .8; }
 
-.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1060px) { .tiles .icon { width: 76px; height: 76px; border-radius: 22px; } .tiles .icon svg { width: 44px; height: 44px; } .tile h2 { font-size: 1.15rem; } }
 .tile {
   --c: var(--accent);
   background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 22px 20px 20px;
@@ -216,6 +222,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 #view-minca { --tc: var(--t-minca); }
 #view-casovac { --tc: var(--t-casovac); }
 #view-stopky { --tc: var(--t-stopky); }
+#view-hlukomer { --tc: var(--t-hluk); }
 #view-skupiny { --tc: var(--t-skupiny); --g0: var(--t-skupiny); --g1: var(--t-kalkulacka); --g2: var(--t-cislo); --g3: var(--t-casovac); --g4: var(--t-mena); --g5: var(--t-jednotky); --g6: var(--t-kalendar); --g7: var(--t-stopky); }
 .two-col { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .stack { display: flex; flex-direction: column; gap: 16px; }
@@ -309,12 +316,62 @@ kbd { font-family: var(--f-mono); background: var(--surface-2); border: 1px soli
 
 footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: center; }
 
+/* hlukomer */
+.noise-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.noise-stage { display: flex; flex-direction: column; gap: 16px; }
+.cat-box { position: relative; border-radius: 22px; background: var(--mood0); transition: background .8s ease; display: grid; place-items: center; padding: 10px 10px 0; overflow: hidden; }
+.cat-box[data-mood="1"] { background: var(--mood1); }
+.cat-box[data-mood="2"] { background: var(--mood2); }
+.cat-box[data-mood="3"] { background: var(--mood3); }
+.cat-box[data-mood="4"] { background: var(--mood4); }
+.cat { width: min(440px, 100%); height: auto; display: block; }
+.cat .mo { transition: opacity .45s ease; }
+.cat .ear-l, .cat .ear-r { transition: transform .6s ease; transform-box: view-box; }
+.cat .ear-l { transform-origin: 98px 82px; }
+.cat .ear-r { transform-origin: 162px 82px; }
+.cat-box[data-mood="3"] .ear-l { transform: rotate(-14deg); }
+.cat-box[data-mood="3"] .ear-r { transform: rotate(14deg); }
+.cat-box[data-mood="4"] .ear-l { transform: rotate(-32deg) translateY(6px); }
+.cat-box[data-mood="4"] .ear-r { transform: rotate(32deg) translateY(6px); }
+.cat .breath { transform-box: view-box; transform-origin: 130px 230px; }
+.cat-box[data-mood="0"] .breath { animation: breathe 3.6s ease-in-out infinite; }
+.cat-box[data-mood="1"] .breath { animation: breathe 2.6s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.025, 1.04); } }
+.cat-box[data-mood="4"] .head { animation: shake .18s linear infinite; }
+@keyframes shake { 25% { transform: translateX(-3px) rotate(-1deg); } 75% { transform: translateX(3px) rotate(1deg); } }
+.cat .zz text { animation: zfloat 3s ease-in-out infinite; }
+.cat .zz text:nth-child(2) { animation-delay: .5s; }
+.cat .zz text:nth-child(3) { animation-delay: 1s; }
+@keyframes zfloat { 0%, 100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-6px); opacity: .5; } }
+.cat .tail { transition: stroke-width .5s ease; }
+.cat-box[data-mood="4"] .tail { stroke-width: 26; }
+.mood-text { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.4rem, 3.4vw, 2.2rem); text-align: center; text-wrap: balance; }
+.meter { position: relative; height: 26px; border-radius: 999px; background: linear-gradient(90deg, #3FAE6A 0%, #9BC53D 35%, #F2C12E 60%, #F08A24 80%, #E0393E 100%); overflow: hidden; }
+.meter-mask { position: absolute; top: 0; right: 0; bottom: 0; background: var(--surface-2); transition: width .12s linear; }
+.meter-limit { position: absolute; top: -4px; bottom: -4px; width: 3px; background: var(--ink); border-radius: 2px; }
+.meter-row { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.level-num { font-family: var(--f-mono); font-size: 2.4rem; font-weight: 500; line-height: 1; min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; }
+.noise-chart { width: 100%; height: 150px; display: block; }
+.noise-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.noise-stats div { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.noise-stats b { display: block; font-family: var(--f-mono); font-size: 1.3rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.noise-stats span { font-size: .78rem; color: var(--muted); }
+.range { width: 100%; accent-color: var(--tc); }
+.range-head { display: flex; justify-content: space-between; align-items: baseline; }
+.range-head output { font-family: var(--f-mono); font-size: .9rem; }
+.mic-note { background: color-mix(in srgb, var(--tc) 12%, var(--surface)); border-radius: 12px; padding: 12px 14px; font-size: .9rem; }
+.panel:fullscreen .noise-stage .cat { width: min(62vh, 90vw); }
+.panel:fullscreen .mood-text { font-size: clamp(2rem, 5vw, 3.6rem); }
+@media (max-width: 980px) { .noise-layout { grid-template-columns: minmax(0, 1fr); } }
+
 /* responsive */
 @media (max-width: 980px) {
   .cal-layout, .calc-layout, .two-col { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 820px) {
+@media (max-width: 900px) {
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+@media (max-width: 820px) {
   .hello { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
@@ -373,6 +430,10 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
       <circle cx="14" cy="15" r="8"/><circle cx="34" cy="15" r="8"/><circle cx="24" cy="33" r="8"/>
       <g fill="#fff" stroke="none"><circle cx="11.5" cy="15" r="2"/><circle cx="16.5" cy="15" r="2"/><circle cx="31.5" cy="15" r="2"/><circle cx="36.5" cy="15" r="2"/><circle cx="21.5" cy="33" r="2"/><circle cx="26.5" cy="33" r="2"/></g>
     </g>
+    <g id="i-hluk" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="17" y="6" width="14" height="22" rx="7"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7M18 42h12"/>
+      <path d="M5 16v6M43 16v6" stroke-width="2.6"/>
+    </g>
     <g id="i-stopky" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="24" cy="27" r="14"/><path d="M24 27v-7M20 6h8M24 6v7M35.5 14.5l3-3"/>
     </g>
@@ -421,6 +482,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
       <a class="tile" href="#minca" style="--c: var(--t-minca)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-minca"/></svg></span><h2>Hod mincou</h2><p>Rozhodne medzi dvomi možnosťami</p></a>
       <a class="tile" href="#casovac" style="--c: var(--t-casovac)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-casovac"/></svg></span><h2>Časovač</h2><p>Odpočet na ľubovoľný čas so zvukom</p></a>
       <a class="tile" href="#stopky" style="--c: var(--t-stopky)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-stopky"/></svg></span><h2>Stopky</h2><p>Meranie času s medzičasmi</p></a>
+      <a class="tile" href="#hlukomer" style="--c: var(--t-hluk)"><span class="icon"><svg viewBox="0 0 48 48"><use href="#i-hluk"/></svg></span><h2>Hlukomer</h2><p>Mačka Micka spí, kým je v triede ticho</p></a>
     </nav>
   </section>
 
@@ -624,6 +686,87 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
           <span class="row"><button class="btn icon-btn ghost" id="gCopy">Kopírovať</button><button class="btn icon-btn ghost fs-btn">Na celú obrazovku</button></span>
         </div>
         <div class="groups" id="gOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HLUKOMER -->
+  <section data-view="hlukomer" id="view-hlukomer" hidden>
+    <div class="view-head">
+      <a class="back" href="#domov"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Nástroje</a>
+      <span class="icon" style="--c: var(--t-hluk)"><svg viewBox="0 0 48 48"><use href="#i-hluk"/></svg></span>
+      <h1>Hlukomer</h1>
+    </div>
+    <div class="noise-layout">
+      <div class="panel noise-stage">
+        <div class="row" style="justify-content:flex-end"><button class="btn icon-btn ghost fs-btn">Na celú obrazovku</button></div>
+        <div class="cat-box" id="catBox" data-mood="0">
+          <svg class="cat" viewBox="0 0 260 240" role="img" aria-labelledby="moodText">
+            <g class="breath">
+              <path class="tail" d="M196 206 C 246 204, 252 160, 226 138" fill="none" stroke="var(--fur-dark)" stroke-width="16" stroke-linecap="round"/>
+              <ellipse cx="130" cy="198" rx="92" ry="38" fill="var(--fur)"/>
+              <path d="M70 186 q8 -14 16 0 M174 186 q8 -14 16 0" stroke="var(--fur-dark)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <ellipse cx="100" cy="226" rx="17" ry="10" fill="var(--fur-light)"/>
+              <ellipse cx="160" cy="226" rx="17" ry="10" fill="var(--fur-light)"/>
+              <g class="head">
+                <circle class="mo" data-moods="4" cx="130" cy="118" r="64" fill="none" stroke="var(--fur)" stroke-width="16" stroke-dasharray="5 6"/>
+                <g class="ear-l"><path d="M80 90 L70 30 L120 62 Z" fill="var(--fur)"/><path d="M86 80 L80 45 L110 64 Z" fill="var(--cat-pink)"/></g>
+                <g class="ear-r"><path d="M180 90 L190 30 L140 62 Z" fill="var(--fur)"/><path d="M174 80 L180 45 L150 64 Z" fill="var(--cat-pink)"/></g>
+                <ellipse cx="130" cy="118" rx="64" ry="56" fill="var(--fur)"/>
+                <path d="M130 64 v14 M117 66 l3 11 M143 66 l-3 11" stroke="var(--fur-dark)" stroke-width="4" stroke-linecap="round"/>
+                <ellipse cx="130" cy="142" rx="27" ry="19" fill="var(--fur-light)"/>
+                <circle cx="91" cy="138" r="9" fill="var(--cat-pink)" opacity=".45"/>
+                <circle cx="169" cy="138" r="9" fill="var(--cat-pink)" opacity=".45"/>
+                <g class="mo" data-moods="0" stroke="var(--cat-ink)" stroke-width="4" fill="none" stroke-linecap="round"><path d="M94 116 q12 10 24 0"/><path d="M142 116 q12 10 24 0"/></g>
+                <g class="mo" data-moods="1" fill="var(--cat-ink)"><path d="M94 114 a12 12 0 0 0 24 0 z"/><path d="M142 114 a12 12 0 0 0 24 0 z"/><path d="M92 114 h28 M140 114 h28" stroke="var(--cat-ink)" stroke-width="3" stroke-linecap="round"/></g>
+                <g class="mo" data-moods="2 3"><circle cx="106" cy="114" r="12" fill="var(--cat-ink)"/><circle cx="154" cy="114" r="12" fill="var(--cat-ink)"/><circle cx="110" cy="110" r="4" fill="#fff"/><circle cx="158" cy="110" r="4" fill="#fff"/></g>
+                <g class="mo" data-moods="4"><circle cx="106" cy="114" r="14" fill="#fff" stroke="var(--cat-ink)" stroke-width="3"/><circle cx="154" cy="114" r="14" fill="#fff" stroke="var(--cat-ink)" stroke-width="3"/><circle cx="106" cy="114" r="4.5" fill="var(--cat-ink)"/><circle cx="154" cy="114" r="4.5" fill="var(--cat-ink)"/></g>
+                <path class="mo" data-moods="3" d="M93 96 l24 8 M167 96 l-24 8" stroke="var(--cat-ink)" stroke-width="4" stroke-linecap="round"/>
+                <path class="mo" data-moods="4" d="M90 90 l28 13 M170 90 l-28 13" stroke="var(--cat-ink)" stroke-width="4.5" stroke-linecap="round"/>
+                <path d="M124 131 h12 l-6 7 z" fill="var(--cat-pink)" stroke="var(--cat-pink)" stroke-width="2" stroke-linejoin="round"/>
+                <path class="mo" data-moods="0 1 2" d="M130 138 v4 M130 142 q-6 6 -12 2 M130 142 q6 6 12 2" stroke="var(--cat-ink)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path class="mo" data-moods="3" d="M119 152 q11 -7 22 0" stroke="var(--cat-ink)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <g class="mo" data-moods="4"><ellipse cx="130" cy="151" rx="12" ry="10" fill="var(--cat-ink)"/><path d="M122 143 l3 7 l3 -7 z M132 143 l3 7 l3 -7 z" fill="#fff"/></g>
+                <g stroke="var(--cat-ink)" stroke-width="2" stroke-linecap="round" opacity=".55"><path d="M104 140 L64 133 M104 147 L63 152 M156 140 L196 133 M156 147 L197 152"/></g>
+              </g>
+            </g>
+            <g class="zz mo" data-moods="0 1" fill="var(--muted)" font-family="Bricolage Grotesque, system-ui, sans-serif" font-weight="800"><text x="186" y="72" font-size="16">z</text><text x="202" y="54" font-size="22">z</text><text x="220" y="34" font-size="28">Z</text></g>
+            <g class="mo" data-moods="3" fill="var(--t-casovac)" font-family="Bricolage Grotesque, system-ui, sans-serif" font-weight="800"><text x="200" y="58" font-size="26">?!</text></g>
+            <g class="mo" data-moods="4"><text x="196" y="62" font-size="40" fill="var(--t-casovac)" font-family="Bricolage Grotesque, system-ui, sans-serif" font-weight="800">!!</text><path d="M34 70 l12 -16 l-2 11 l12 -14 M30 104 h18 M38 136 l14 -6" stroke="var(--t-casovac)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+          </svg>
+        </div>
+        <div class="mood-text" id="moodText" aria-live="polite">Psst… Micka spí.</div>
+        <div class="meter-row">
+          <div class="level-num" id="levelNum">0</div>
+          <div class="meter" aria-hidden="true"><div class="meter-mask" id="meterMask" style="width:100%"></div><div class="meter-limit" id="meterLimit"></div></div>
+        </div>
+        <canvas class="noise-chart" id="noiseChart" aria-label="Graf hlasitosti za poslednú minútu"></canvas>
+        <div class="noise-stats">
+          <div><b id="stQuiet">00:00</b><span>ticho trvá</span></div>
+          <div><b id="stOver">00:00</b><span>čas nad hranicou</span></div>
+          <div><b id="stCount">0</b><span>Micka sa rozčúlila</span></div>
+        </div>
+      </div>
+      <div class="panel stack">
+        <button class="btn primary big" id="micBtn">Zapnúť mikrofón</button>
+        <div class="mic-note" id="micNote" hidden></div>
+        <div>
+          <div class="range-head"><label class="label" for="limitRange">Hranica hluku</label><output id="limitOut">70</output></div>
+          <input class="range" type="range" id="limitRange" min="35" max="95" value="70">
+          <p class="small muted" style="margin:4px 0 0">Keď hluk prekročí hranicu, Micka sa rozčúli. Pri písomke posuňte hranicu nižšie, pri skupinovej práci vyššie.</p>
+        </div>
+        <div>
+          <div class="range-head"><label class="label" for="sensRange">Citlivosť mikrofónu</label><output id="sensOut">0</output></div>
+          <input class="range" type="range" id="sensRange" min="-20" max="20" value="0">
+          <p class="small muted" style="margin:4px 0 0">Ak sa Micka budí aj v tichej triede, citlivosť znížte. Ak spí aj pri hluku, zvýšte ju.</p>
+        </div>
+        <label class="check"><input type="checkbox" id="demoCheck"> Ukážkový režim bez mikrofónu</label>
+        <div id="demoBox" hidden>
+          <div class="range-head"><label class="label" for="demoRange">Simulovaná hlasitosť</label><output id="demoOut">10</output></div>
+          <input class="range" type="range" id="demoRange" min="0" max="100" value="10">
+        </div>
+        <button class="btn" id="noiseReset">Vynulovať štatistiku</button>
+        <p class="small muted" style="margin:0">Úroveň 0 až 100 je orientačná, nie sú to presné decibely. Zvuk sa nikam neodosiela ani neukladá, meria sa iba hlasitosť priamo v prehliadači.</p>
       </div>
     </div>
   </section>
@@ -1236,6 +1379,116 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
     $("#quoteAuthor").textContent = q[1];
   })();
 
+  /* ---------- hlukomer ---------- */
+  const N = { stream: null, ctx: null, analyser: null, buf: null, timer: 0, level: 0, awake: 0, mood: 0, hist: [], quietMs: 0, overMs: 0, count: 0, last: 0, demo: false, running: false };
+  const MOOD_TEXT = ["Psst… Micka spí.", "Micka sa vrtí, je trochu hlučno.", "Micka sa zobudila.", "Micke sa to nepáči! Stíšte sa.", "Príliš veľký hluk! Micka je rozrušená."];
+  const catBox = $("#catBox");
+  const moEls = $$(".cat .mo").map(el => ({ el, moods: el.dataset.moods.split(" ").map(Number) }));
+  const limit = () => +$("#limitRange").value;
+  function setMood(m) {
+    if (m === N.mood && N.shown) return;
+    N.shown = true;
+    if (m === 4 && N.mood !== 4) { N.count++; $("#stCount").textContent = N.count; }
+    N.mood = m; catBox.dataset.mood = m;
+    moEls.forEach(o => { o.el.style.opacity = o.moods.includes(m) ? 1 : 0; });
+    $("#moodText").textContent = MOOD_TEXT[m];
+  }
+  setMood(0);
+  const mmss = ms => { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+  function rawLevel() {
+    if (N.demo) return +$("#demoRange").value;
+    if (!N.analyser) return 0;
+    N.analyser.getFloatTimeDomainData(N.buf);
+    let sum = 0; for (let i = 0; i < N.buf.length; i++) sum += N.buf[i] * N.buf[i];
+    const db = 20 * Math.log10(Math.sqrt(sum / N.buf.length) + 1e-9);
+    return Math.max(0, Math.min(100, (db + 65 + +$("#sensRange").value) * 100 / 55));
+  }
+  function noiseTick() {
+    const now = performance.now(), dt = Math.min(250, now - (N.last || now)); N.last = now;
+    const raw = rawLevel();
+    N.level += (raw - N.level) * (raw > N.level ? 0.5 : 0.15);
+    const tau = N.level > N.awake ? 1200 : 4000;
+    N.awake += (N.level - N.awake) * (1 - Math.exp(-dt / tau));
+    const L = limit(), a = N.awake;
+    const th = [0.4 * L, 0.62 * L, 0.82 * L, L];
+    let m = 0; while (m < 4 && a >= th[m]) m++;
+    if (m < N.mood && a > th[m] - 3) m = N.mood;
+    setMood(m);
+    if (N.level < 0.62 * L) N.quietMs += dt; else N.quietMs = 0;
+    if (N.level >= L) N.overMs += dt;
+    $("#stQuiet").textContent = mmss(N.quietMs); $("#stOver").textContent = mmss(N.overMs);
+    $("#levelNum").textContent = Math.round(N.level);
+    $("#meterMask").style.width = (100 - N.level) + "%";
+    N.hist.push(N.level); if (N.hist.length > 600) N.hist.shift();
+    drawNoise();
+  }
+  function drawNoise() {
+    const c = $("#noiseChart"), r = c.getBoundingClientRect();
+    if (!r.width) return;
+    const dpr = window.devicePixelRatio || 1;
+    if (c.width !== Math.round(r.width * dpr)) { c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); }
+    const g = c.getContext("2d"), W = c.width, H = c.height, cs = getComputedStyle(document.documentElement);
+    g.clearRect(0, 0, W, H);
+    g.strokeStyle = cs.getPropertyValue("--line"); g.lineWidth = 1 * dpr;
+    [25, 50, 75].forEach(v => { const y = H - v / 100 * H; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); });
+    const ly = H - limit() / 100 * H;
+    g.setLineDash([6 * dpr, 5 * dpr]); g.strokeStyle = cs.getPropertyValue("--t-casovac"); g.lineWidth = 2 * dpr;
+    g.beginPath(); g.moveTo(0, ly); g.lineTo(W, ly); g.stroke(); g.setLineDash([]);
+    if (N.hist.length > 1) {
+      const step = W / 599, x0 = W - (N.hist.length - 1) * step, col = cs.getPropertyValue("--t-hluk").trim();
+      g.beginPath(); g.moveTo(x0, H);
+      N.hist.forEach((v, i) => g.lineTo(x0 + i * step, H - v / 100 * H));
+      g.lineTo(W, H); g.closePath(); g.globalAlpha = .18; g.fillStyle = col; g.fill(); g.globalAlpha = 1;
+      g.beginPath(); N.hist.forEach((v, i) => { const x = x0 + i * step, y = H - v / 100 * H; i ? g.lineTo(x, y) : g.moveTo(x, y); });
+      g.strokeStyle = col; g.lineWidth = 2.5 * dpr; g.lineJoin = "round"; g.stroke();
+    }
+    g.fillStyle = cs.getPropertyValue("--muted"); g.font = `${11 * dpr}px system-ui, sans-serif`;
+    g.fillText("pred 1 min", 4 * dpr, H - 4 * dpr); g.fillText("hranica", 4 * dpr, ly - 5 * dpr);
+  }
+  function startLoop() { if (!N.timer) { N.last = 0; N.timer = setInterval(noiseTick, 100); } }
+  function stopLoop() { clearInterval(N.timer); N.timer = 0; }
+  function showMicNote(html) { const n = $("#micNote"); n.innerHTML = html; n.hidden = !html; }
+  async function startMic() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showMicNote("Prehliadač tu nepovolí mikrofón. Otvorte stránku ako súbor <b>index.html</b> alebo cez zabezpečenú adresu (https). Zatiaľ si môžete vyskúšať ukážkový režim.");
+      return;
+    }
+    try {
+      N.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      N.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = N.ctx.createMediaStreamSource(N.stream);
+      N.analyser = N.ctx.createAnalyser(); N.analyser.fftSize = 2048;
+      N.buf = new Float32Array(N.analyser.fftSize);
+      src.connect(N.analyser);
+      N.running = true; N.demo = false; $("#demoCheck").checked = false; $("#demoBox").hidden = true;
+      $("#micBtn").textContent = "Vypnúť mikrofón"; showMicNote("");
+      keepAwake(true); startLoop();
+    } catch (e) {
+      const denied = e && (e.name === "NotAllowedError" || e.name === "SecurityError");
+      showMicNote(denied
+        ? "Mikrofón nie je povolený. Ak ste prístup zamietli, povoľte ho v nastaveniach prehliadača pri adrese stránky. V náhľade na claude.ai mikrofón nefunguje, otvorte samostatnú verziu stránky (súbor <b>index.html</b> alebo GitHub Pages). Zatiaľ si môžete vyskúšať ukážkový režim."
+        : "Mikrofón sa nepodarilo spustiť. Skontrolujte, či je pripojený a či ho nepoužíva iná aplikácia.");
+    }
+  }
+  function stopMic() {
+    if (N.stream) N.stream.getTracks().forEach(t => t.stop());
+    if (N.ctx) N.ctx.close().catch(() => {});
+    N.stream = N.ctx = N.analyser = null; N.running = false;
+    $("#micBtn").textContent = "Zapnúť mikrofón";
+    if (!N.demo) { stopLoop(); keepAwake(false); }
+  }
+  $("#micBtn").addEventListener("click", () => N.running ? stopMic() : startMic());
+  $("#demoCheck").addEventListener("change", e => {
+    N.demo = e.target.checked; $("#demoBox").hidden = !N.demo;
+    if (N.demo) { if (N.running) stopMic(); N.demo = true; startLoop(); } else if (!N.running) stopLoop();
+  });
+  const bindOut = (id, out) => { const r = $(id), o = $(out); const f = () => { o.textContent = r.value; }; r.addEventListener("input", f); f(); };
+  bindOut("#demoRange", "#demoOut"); bindOut("#sensRange", "#sensOut"); bindOut("#limitRange", "#limitOut");
+  const placeLimit = () => { $("#meterLimit").style.left = `calc(${limit()}% - 1.5px)`; drawNoise(); };
+  $("#limitRange").addEventListener("input", placeLimit); placeLimit();
+  $("#noiseReset").addEventListener("click", () => { N.quietMs = N.overMs = 0; N.count = 0; N.hist = []; $("#stCount").textContent = 0; $("#stQuiet").textContent = "00:00"; $("#stOver").textContent = "00:00"; drawNoise(); });
+  window.addEventListener("resize", drawNoise);
+
   /* ---------- jednotky ---------- */
   const UNITS = {
     dlzka: { label: "Dĺžka", u: [["mm","milimeter",1e-3],["cm","centimeter",1e-2],["dm","decimeter",0.1],["m","meter",1],["km","kilometer",1000],["in","palec",0.0254],["ft","stopa",0.3048],["yd","yard",0.9144],["mi","míľa",1609.344]] },
@@ -1479,6 +1732,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: .85rem; text-align: c
     if (!VIEWS.includes(id)) id = "domov";
     current = id;
     $$("[data-view]").forEach(v => { v.hidden = v.dataset.view !== id; });
+    if (id !== "hlukomer") { if (N.running) stopMic(); if (N.demo) { N.demo = false; $("#demoCheck").checked = false; $("#demoBox").hidden = true; stopLoop(); } } else drawNoise();
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
