@@ -1002,7 +1002,7 @@ window.Cat3D = function (box) {
   let renderer;
   try { renderer = new T.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }); } catch (e) { return null; }
   box.appendChild(canvas); box.classList.add("has-3d");
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.outputEncoding = T.sRGBEncoding;
   renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
@@ -1034,32 +1034,6 @@ window.Cat3D = function (box) {
   const group = (parent, pos, rot) => { const g = new T.Group(); if (pos) g.position.set(pos[0], pos[1], pos[2]); if (rot) g.rotation.set(rot[0], rot[1], rot[2]); (parent || scene).add(g); return g; };
 
   /* ---- textúry ---- */
-  const furTex = tex(1024, 512, (g, w, h) => {
-    const grd = g.createLinearGradient(0, 0, 0, h);
-    grd.addColorStop(0, "#E48B3E"); grd.addColorStop(0.55, "#EE9E52"); grd.addColorStop(1, "#F7CFA0");
-    g.fillStyle = grd; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 26000; i++) {
-      const x = Math.random() * w, y = Math.random() * h;
-      g.fillStyle = Math.random() < 0.5 ? "rgba(255,226,180,.16)" : "rgba(140,62,16,.12)";
-      g.fillRect(x, y, 1.2, 3 + Math.random() * 4);
-    }
-    g.lineCap = "round";
-    for (let i = 0; i < 16; i++) {
-      const x0 = (i + 0.5) * w / 16;
-      g.strokeStyle = "rgba(168,76,22,.5)"; g.lineWidth = 12 + Math.random() * 10;
-      g.beginPath();
-      for (let y = h * 0.04; y <= h * 0.5; y += 6) { const x = x0 + Math.sin(y * 0.04 + i * 1.7) * 9; y < h * 0.05 ? g.moveTo(x, y) : g.lineTo(x, y); }
-      g.stroke();
-    }
-  });
-  const headTex = tex(1024, 512, (g, w, h) => {
-    const grd = g.createLinearGradient(0, 0, 0, h);
-    grd.addColorStop(0, "#E48B3E"); grd.addColorStop(0.5, "#EE9E52"); grd.addColorStop(1, "#F5C48F");
-    g.fillStyle = grd; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 20000; i++) { g.fillStyle = Math.random() < 0.5 ? "rgba(255,226,180,.14)" : "rgba(140,62,16,.10)"; g.fillRect(Math.random() * w, Math.random() * h, 1.2, 3 + Math.random() * 3); }
-    g.lineCap = "round"; g.strokeStyle = "rgba(168,76,22,.55)";
-    for (let i = 0; i < 18; i++) { const x0 = (i + 0.5) * w / 18; g.lineWidth = 9; g.beginPath(); g.moveTo(x0, h * 0.02); g.lineTo(x0 + Math.sin(i) * 6, h * (0.16 + (i % 3) * 0.04)); g.stroke(); }
-  });
   const woodTex = tex(512, 512, (g, w, h) => {
     g.fillStyle = "#C79A6A"; g.fillRect(0, 0, w, h);
     const tones = ["#C3935F", "#CDA273", "#BE8E5C", "#D2A877"];
@@ -1127,7 +1101,6 @@ window.Cat3D = function (box) {
   // pelech
   const bedM = std({ color: "#78AFC4", roughness: 0.95 });
   add(new T.CylinderGeometry(1.45, 1.5, 0.2, 64), bedM, null, [0, 0.12, 0]);
-  add(new T.TorusGeometry(1.55, 0.22, 28, 72), std({ color: "#6A9FB5", roughness: 0.95 }), null, [0, 0.22, 0], null, [Math.PI / 2, 0, 0]);
   // kvetina
   const plant = group(null, [-2.75, 0, -1.9]);
   add(new T.CylinderGeometry(0.38, 0.3, 0.62, 32), std({ color: "#C8714B" }), plant, [0, 0.31, 0]);
@@ -1139,92 +1112,256 @@ window.Cat3D = function (box) {
   add(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(2.0, 0.08, 1.2), new T.Vector3(1.7, 0.03, 1.6), new T.Vector3(1.2, 0.03, 1.5), new T.Vector3(1.0, 0.03, 1.9)]), 30, 0.025, 8), std({ color: "#E3799D" }), null, null, null, null, true);
 
   /* ---- svetlá ---- */
-  const hemi = new T.HemisphereLight("#FFF3E2", "#B58A62", 0.8); scene.add(hemi);
-  const key = new T.DirectionalLight("#FFE3C0", 1.15);
+  const hemi = new T.HemisphereLight("#FFF1DE", "#9C7656", 0.5); scene.add(hemi);
+  const key = new T.DirectionalLight("#FFE2BE", 1.2);
   key.position.set(3, 6.5, 4.5); key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024); key.shadow.camera.left = -4; key.shadow.camera.right = 4; key.shadow.camera.top = 4; key.shadow.camera.bottom = -4;
   key.shadow.bias = -0.0006; key.shadow.radius = 5; scene.add(key);
+  const rim = new T.DirectionalLight("#C7D6FF", 0.75); rim.position.set(-2.5, 3.2, -4); scene.add(rim);
   const winLight = new T.PointLight("#A9BEFF", 0.35, 9); winLight.position.set(1.9, 2.7, -2.4); scene.add(winLight);
   const alarm = new T.PointLight("#FF3B3B", 0, 9); alarm.position.set(0, 2.6, 2.2); scene.add(alarm);
+  // okolie pre jemné odlesky v očiach a na srsti
+  try {
+    const envScene = new T.Scene();
+    const envTex = tex(512, 256, (g, w, h) => {
+      const grd = g.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, "#FFF6EA"); grd.addColorStop(0.5, "#E9D2B8"); grd.addColorStop(1, "#7A583E");
+      g.fillStyle = grd; g.fillRect(0, 0, w, h);
+      g.fillStyle = "#FFFFFF"; g.fillRect(w * 0.55, h * 0.16, w * 0.12, h * 0.24);
+      g.fillStyle = "#FFF0D8"; g.fillRect(w * 0.08, h * 0.1, w * 0.1, h * 0.12);
+    });
+    envScene.add(new T.Mesh(new T.SphereGeometry(10, 32, 16), new T.MeshBasicMaterial({ map: envTex, side: T.BackSide })));
+    const pm = new T.PMREMGenerator(renderer);
+    scene.environment = pm.fromScene(envScene, 0.02).texture;
+    pm.dispose();
+  } catch (e) {}
+
+  /* ---- srsť: vrstvená technika „shell fur“ ---- */
+  const lin = hex => new T.Color(hex).convertSRGBToLinear();
+  const SHELLS = 18;
+  const noiseTex = (() => {
+    const n = 256, d = new Uint8Array(n * n * 4);
+    for (let i = 0; i < n * n; i++) {
+      d[i * 4] = Math.floor(255 * (0.3 + 0.7 * Math.pow(Math.random(), 0.55)));
+      d[i * 4 + 1] = Math.floor(Math.random() * 255); d[i * 4 + 2] = 0; d[i * 4 + 3] = 255;
+    }
+    const t = new T.DataTexture(d, n, n, T.RGBAFormat);
+    t.wrapS = t.wrapT = T.RepeatWrapping; t.magFilter = t.minFilter = T.NearestFilter; t.generateMipmaps = false; t.needsUpdate = true;
+    return t;
+  })();
+  const furMat = (color, h, len, den, mode, stripe) => {
+    const m = new T.MeshStandardMaterial({ color: lin(color), roughness: 0.95, metalness: 0, envMapIntensity: 0.55 });
+    m.onBeforeCompile = sh => {
+      Object.assign(sh.uniforms, { uH: { value: h }, uLen: { value: len }, uNoise: { value: noiseTex }, uDen: { value: den }, uMode: { value: mode || 0 }, uStripe: { value: lin(stripe || "#A4521D") } });
+      sh.vertexShader = "attribute vec2 furUv;\nattribute float furK;\nvarying vec2 vFurUv;\nvarying float vFurK;\nvarying vec3 vObj;\nuniform float uH;\nuniform float uLen;\n" +
+        sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\n  vObj = position; vFurUv = furUv; vFurK = furK;\n  transformed += normal * uLen * uH * furK;\n  transformed.y -= uLen * 0.45 * uH * uH * furK;");
+      sh.fragmentShader = "varying vec2 vFurUv;\nvarying float vFurK;\nvarying vec3 vObj;\nuniform float uH;\nuniform sampler2D uNoise;\nuniform float uDen;\nuniform float uMode;\nuniform vec3 uStripe;\n" +
+        sh.fragmentShader.replace("#include <map_fragment>", `#include <map_fragment>
+  vec2 fc = vFurUv * uDen * 256.0;
+  vec4 nz = texture2D(uNoise, (floor(fc) + 0.5) / 256.0);
+  if (uH > 0.001) {
+    if (uH > vFurK || nz.r < uH) discard;
+    vec2 cell = fract(fc) - 0.5;
+    if (length(cell) > (1.0 - uH / nz.r) * 0.5 + 0.1) discard;
+  }
+  float stripe = 0.0;
+  if (uMode > 0.5 && uMode < 1.5) {
+    float s = sin(vObj.z * 12.0 + sin(vObj.x * 5.0) * 1.3);
+    stripe = smoothstep(0.3, 0.8, s) * smoothstep(0.45, 0.8, vObj.y);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.93, 0.75, 0.55), smoothstep(0.32, 0.1, vObj.y));
+  } else if (uMode > 1.5 && uMode < 2.5) {
+    float s = sin(vObj.x * 40.0);
+    stripe = smoothstep(0.35, 0.85, s) * smoothstep(0.2, 0.4, vObj.y) * smoothstep(0.34, 0.12, abs(vObj.x));
+    float c = sin(vObj.y * 30.0 + 1.2);
+    stripe = max(stripe, 0.8 * smoothstep(0.45, 0.9, c) * smoothstep(0.36, 0.5, abs(vObj.x)) * smoothstep(0.08, -0.12, vObj.y));
+  } else if (uMode > 2.5) {
+    stripe = 0.85 * smoothstep(0.25, 0.8, sin(vFurUv.x * 10.0));
+  }
+  diffuseColor.rgb = mix(diffuseColor.rgb, uStripe, stripe * 0.8);
+  diffuseColor.rgb *= mix(0.5, 1.12, uH) * (0.88 + 0.24 * nz.g);`);
+    };
+    return m;
+  };
+  const furry = (geo, parent, o) => {
+    const den = 1 / ((o.spacing || 0.0075) * 256);
+    const base = new T.Mesh(geo, furMat(o.color, 0, o.len, den, o.mode, o.stripe));
+    base.castShadow = o.shadow !== false; base.receiveShadow = true; parent.add(base);
+    const all = [base];
+    for (let i = 1; i <= SHELLS; i++) {
+      const m = new T.Mesh(geo, furMat(o.color, i / SHELLS, o.len, den, o.mode, o.stripe));
+      m.receiveShadow = true; if (o.noCull) m.frustumCulled = false; parent.add(m); all.push(m);
+    }
+    if (o.noCull) base.frustumCulled = false;
+    return all;
+  };
+  // jedna časť tela: tvar + súradnice pre srsť + maska (kde má byť srsť kratšia)
+  const SPHF = new T.SphereGeometry(1, 64, 44);
+  const part = (geo, pos, scale, rot, mask) => {
+    const g = geo.clone();
+    const q = new T.Quaternion().setFromEuler(new T.Euler(rot ? rot[0] : 0, rot ? rot[1] : 0, rot ? rot[2] : 0));
+    g.applyMatrix4(new T.Matrix4().compose(new T.Vector3(pos[0], pos[1], pos[2]), q, new T.Vector3(scale[0], scale[1], scale[2])));
+    const uv = g.attributes.uv, P = g.attributes.position, n = P.count, r = (scale[0] + scale[1] + scale[2]) / 3;
+    const fu = new Float32Array(n * 2), fk = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      fu[i * 2] = uv.getX(i) * 2 * Math.PI * r; fu[i * 2 + 1] = uv.getY(i) * Math.PI * r;
+      let k = 1;
+      (mask || []).forEach(m => {
+        const dx = P.getX(i) - m[0], dy = P.getY(i) - m[1], dz = P.getZ(i) - m[2];
+        k = Math.min(k, Math.max(0, Math.min(1, (Math.sqrt(dx * dx + dy * dy + dz * dz) - m[3]) / (m[4] - m[3]))));
+      });
+      fk[i] = k;
+    }
+    g.setAttribute("furUv", new T.BufferAttribute(fu, 2)); g.setAttribute("furK", new T.BufferAttribute(fk, 1));
+    return g;
+  };
+  const merge = geos => {
+    let vc = 0, ic = 0;
+    geos.forEach(g => { vc += g.attributes.position.count; ic += g.index ? g.index.count : g.attributes.position.count; });
+    const pos = new Float32Array(vc * 3), nor = new Float32Array(vc * 3), fu = new Float32Array(vc * 2), fk = new Float32Array(vc), idx = new Uint32Array(ic);
+    let vo = 0, io = 0;
+    geos.forEach(g => {
+      const c = g.attributes.position.count;
+      pos.set(g.attributes.position.array, vo * 3); nor.set(g.attributes.normal.array, vo * 3);
+      fu.set(g.attributes.furUv.array, vo * 2); fk.set(g.attributes.furK.array, vo);
+      if (g.index) { for (let i = 0; i < g.index.count; i++) idx[io + i] = g.index.array[i] + vo; io += g.index.count; }
+      else { for (let i = 0; i < c; i++) idx[io + i] = vo + i; io += c; }
+      vo += c;
+    });
+    const m = new T.BufferGeometry();
+    m.setAttribute("position", new T.BufferAttribute(pos, 3)); m.setAttribute("normal", new T.BufferAttribute(nor, 3));
+    m.setAttribute("furUv", new T.BufferAttribute(fu, 2)); m.setAttribute("furK", new T.BufferAttribute(fk, 1));
+    m.setIndex(new T.BufferAttribute(idx, 1)); m.computeBoundingSphere();
+    return m;
+  };
+
+  // huňatý okraj pelechu
+  furry(part(new T.TorusGeometry(1.55, 0.21, 32, 96), [0, 0.22, 0], [1, 1, 1], [Math.PI / 2, 0, 0]), scene, { color: "#86B9CB", len: 0.035, spacing: 0.009 });
 
   /* ---- mačka ---- */
-  const furM = std({ map: furTex, roughness: 0.92 });
-  const creamM = std({ color: "#FCEBD6", roughness: 0.92 });
-  const pinkM = std({ color: "#F09AA8", roughness: 0.6 });
-  const inkM = std({ color: "#24150E", roughness: 0.4 });
+  const ORANGE = "#E8954C", CREAM = "#F7E6D0", PINK = "#E7A0A8";
   const cat = group(null, [0, 0.22, 0.05]);
   const breathe = group(cat, [0, 0.05, 0]);
-  add(SPH, furM, breathe, [0, 0.55, -0.4], [0.95, 0.66, 1.2], [0, Math.PI / 2, 0]);
-  add(SPH, furM, breathe, [-0.55, 0.42, -0.85], [0.44, 0.4, 0.62]);
-  add(SPH, furM, breathe, [0.55, 0.42, -0.85], [0.44, 0.4, 0.62]);
-  add(SPH, furM, breathe, [0, 0.55, 0.2], [0.72, 0.6, 0.62]);
-  add(SPH, creamM, breathe, [0, 0.47, 0.5], [0.5, 0.43, 0.32]);
-  add(SPH, creamM, cat, [-0.32, 0.12, 0.66], [0.2, 0.13, 0.32]);
-  add(SPH, creamM, cat, [0.32, 0.12, 0.66], [0.2, 0.13, 0.32]);
+  const PZ = [Math.PI / 2, 0, 0]; // póly gule otočené dopredu/dozadu, aby neboli vidieť
+  furry(merge([
+    part(SPHF, [0, 0.52, -0.42], [0.9, 0.6, 1.12], PZ),
+    part(SPHF, [-0.5, 0.4, -0.86], [0.42, 0.4, 0.56], PZ),
+    part(SPHF, [0.5, 0.4, -0.86], [0.42, 0.4, 0.56], PZ),
+    part(SPHF, [0, 0.55, 0.12], [0.68, 0.58, 0.58], PZ)
+  ]), breathe, { color: ORANGE, len: 0.075, mode: 1 });
+  furry(merge([part(SPHF, [0, 0.44, 0.46], [0.44, 0.4, 0.3], PZ)]), breathe, { color: CREAM, len: 0.06 });
+  furry(merge([
+    part(SPHF, [-0.29, 0.12, 0.62], [0.16, 0.115, 0.27], PZ),
+    part(SPHF, [0.29, 0.12, 0.62], [0.16, 0.115, 0.27], PZ)
+  ]), cat, { color: CREAM, len: 0.035, spacing: 0.006 });
 
   // hlava
-  const head = group(cat, [0, 1.1, 0.5]);
-  const headM = std({ map: headTex, roughness: 0.92 });
-  add(SPH, headM, head, [0, 0, 0], [0.67, 0.58, 0.56], [0, -Math.PI / 2, 0]);
-  add(SPH, headM, head, [-0.3, -0.2, 0.25], [0.3, 0.26, 0.28]);
-  add(SPH, headM, head, [0.3, -0.2, 0.25], [0.3, 0.26, 0.28]);
-  add(SPH, creamM, head, [-0.1, -0.2, 0.46], [0.16, 0.14, 0.15]);
-  add(SPH, creamM, head, [0.1, -0.2, 0.46], [0.16, 0.14, 0.15]);
-  add(SPH, creamM, head, [0, -0.3, 0.4], [0.12, 0.09, 0.1]);
-  add(SPH, pinkM, head, [0, -0.08, 0.6], [0.07, 0.05, 0.045]);
-  const blushM = std({ color: "#F4A3A6", transparent: true, opacity: 0.55, roughness: 1 });
-  add(SPH, blushM, head, [-0.36, -0.15, 0.43], [0.09, 0.06, 0.03], [0, -0.6, 0], true);
-  add(SPH, blushM, head, [0.36, -0.15, 0.43], [0.09, 0.06, 0.03], [0, 0.6, 0], true);
+  const head = group(cat, [0, 1.08, 0.5]);
+  const EYE_X = 0.19, EYE_Y = 0.05, EYE_Z = 0.42;
+  const faceMask = [[-EYE_X, EYE_Y, EYE_Z, 0.13, 0.2], [EYE_X, EYE_Y, EYE_Z, 0.13, 0.2], [0, -0.1, 0.53, 0.05, 0.1], [0, -0.23, 0.52, 0.04, 0.09]];
+  furry(merge([
+    part(SPHF, [0, 0, 0], [0.58, 0.5, 0.52], PZ, faceMask),
+    part(SPHF, [-0.27, -0.16, 0.2], [0.28, 0.24, 0.26], PZ, faceMask),
+    part(SPHF, [0.27, -0.16, 0.2], [0.28, 0.24, 0.26], PZ, faceMask)
+  ]), head, { color: ORANGE, len: 0.05, spacing: 0.0065, mode: 2 });
+  furry(merge([
+    part(SPHF, [-0.08, -0.19, 0.42], [0.13, 0.11, 0.12], PZ, faceMask),
+    part(SPHF, [0.08, -0.19, 0.42], [0.13, 0.11, 0.12], PZ, faceMask),
+    part(SPHF, [0, -0.28, 0.37], [0.09, 0.07, 0.08], PZ, faceMask)
+  ]), head, { color: CREAM, len: 0.028, spacing: 0.005 });
+  add(SPH, std({ color: lin("#C46B78"), roughness: 0.35 }), head, [0, -0.1, 0.548], [0.058, 0.04, 0.034]);
   // ústa
-  const lineM = std({ color: "#3A2216", transparent: true, roughness: 0.6 });
-  const smile = group(head, [0, -0.215, 0.6]);
-  [-1, 1].forEach(sx => add(new T.TorusGeometry(0.05, 0.011, 6, 20, Math.PI), lineM, smile, [sx * 0.05, 0, 0], null, [0.25, 0, Math.PI], true));
-  add(new T.CylinderGeometry(0.009, 0.009, 0.06, 6), lineM, smile, [0, 0.03, 0], null, null, true);
-  const mouth = group(head, [0, -0.31, 0.58]);
-  add(SPH, std({ color: "#4A161C", roughness: 0.5 }), mouth, [0, 0, 0], [0.13, 0.11, 0.07]);
-  add(SPH, pinkM, mouth, [0, -0.065, 0.035], [0.06, 0.022, 0.035]);
+  const lineM = std({ color: lin("#3A2216"), transparent: true, roughness: 0.6 });
+  const smile = group(head, [0, -0.2, 0.535]);
+  [-1, 1].forEach(sx => add(new T.TorusGeometry(0.045, 0.008, 6, 20, Math.PI), lineM, smile, [sx * 0.045, -0.02, 0], null, [0.25, 0, Math.PI], true));
+  add(new T.CylinderGeometry(0.006, 0.006, 0.05, 6), lineM, smile, [0, 0.01, 0], null, null, true);
+  const mouth = group(head, [0, -0.28, 0.5]);
+  add(SPH, std({ color: lin("#4A161C"), roughness: 0.5 }), mouth, [0, 0, 0], [0.12, 0.1, 0.06]);
+  add(SPH, std({ color: lin("#D9808C"), roughness: 0.5 }), mouth, [0, -0.06, 0.03], [0.055, 0.02, 0.03]);
   const fangM = std({ color: "#FFFFFF", roughness: 0.3 });
-  [-0.05, 0.05].forEach(x => add(new T.ConeGeometry(0.018, 0.06, 12), fangM, mouth, [x, 0.06, 0.05], null, [Math.PI, 0, 0]));
+  [-0.045, 0.045].forEach(x => add(new T.ConeGeometry(0.016, 0.055, 12), fangM, mouth, [x, 0.055, 0.045], null, [Math.PI, 0, 0]));
   mouth.scale.setScalar(0.001);
   // fúzy
-  const whM = std({ color: "#FFFFFF", roughness: 0.5 });
+  const whM = std({ color: "#FFFDF8", roughness: 0.4, transparent: true, opacity: 0.9 });
   const whiskers = [];
   [-1, 1].forEach(sx => {
-    const wg = group(head, [sx * 0.2, -0.2, 0.52]);
-    [0.12, 0, -0.12].forEach((a, i) => add(new T.CylinderGeometry(0.005, 0.0025, 0.62, 5), whM, wg, [sx * 0.3, -i * 0.035 + 0.03, 0.02], null, [0, 0, Math.PI / 2 + sx * a], true));
+    const wg = group(head, [sx * 0.1, -0.2, 0.5]);
+    [-2, -1, 0, 1, 2].forEach(i => {
+      const dy = i * 0.022, dz = Math.abs(i) * -0.01;
+      const c = new T.CatmullRomCurve3([new T.Vector3(0, dy, 0), new T.Vector3(sx * 0.3, dy * 1.6 + 0.02, 0.04 + dz), new T.Vector3(sx * 0.62, dy * 2.6 - 0.04, -0.06 + dz * 2)]);
+      add(new T.TubeGeometry(c, 16, 0.0035, 5), whM, wg, null, null, null, true);
+    });
     whiskers.push(wg);
   });
   // uši
   const ears = [-1, 1].map(sx => {
-    const eg = group(head, [sx * 0.36, 0.36, 0.0], [0, 0, -sx * 0.32]);
-    add(new T.ConeGeometry(0.24, 0.5, 32), furM, eg, [0, 0.2, 0], [1, 1, 0.55]);
-    add(new T.ConeGeometry(0.16, 0.36, 32), pinkM, eg, [0, 0.16, 0.06], [1, 1, 0.4]);
+    const eg = group(head, [sx * 0.3, 0.3, -0.03], [0, 0, -sx * 0.28]);
+    furry(merge([part(new T.ConeGeometry(0.25, 0.52, 48), [0, 0.22, 0], [1, 1, 0.5])]), eg, { color: "#DC8642", len: 0.025, spacing: 0.005 });
+    add(new T.ConeGeometry(0.17, 0.38, 48), std({ color: lin(PINK), roughness: 0.7 }), eg, [0, 0.18, 0.07], [1, 1, 0.32], null, true);
     eg.userData.sx = sx; return eg;
   });
   // oči
-  const irisM = std({ color: "#A9C94A", roughness: 0.2, emissive: "#2C3A08", emissiveIntensity: 0.25 });
-  const pupilM = std({ color: "#0D0906", roughness: 0.15 });
-  const shineM = new T.MeshBasicMaterial({ color: "#FFFFFF" });
-  const lidM = std({ color: "#D9792F", roughness: 0.95 });
-  const lashM = std({ color: "#3A2216", transparent: true, roughness: 0.6 });
-  const eyes = [-1, 1].map(sx => {
-    const eg = group(head, [sx * 0.21, 0.05, 0.47], [0, sx * 0.22, 0]);
-    eg.userData.base = 1.12;
-    add(SPH, irisM, eg, [0, 0, 0], [0.135, 0.135, 0.135], null, true);
-    const pupil = add(SPH, pupilM, eg, [0, 0, 0.11], [0.05, 0.1, 0.035], null, true);
-    const shine = group(eg);
-    add(SPH, shineM, shine, [sx * -0.035 + 0.01, 0.05, 0.124], [0.022, 0.022, 0.01], null, true);
-    add(SPH, shineM, shine, [0.04, -0.045, 0.124], [0.01, 0.01, 0.005], null, true);
-    const lidPivot = group(eg);
-    add(new T.SphereGeometry(0.158, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), lidM, lidPivot, null, null, null, true);
-    add(new T.SphereGeometry(0.156, 32, 16, 0, Math.PI * 2, Math.PI * 0.7, Math.PI * 0.3), lidM, eg, null, null, null, true);
-    const lash = add(new T.TorusGeometry(0.16, 0.014, 8, 40, Math.PI), lashM, eg, [0, 0, 0], null, [Math.PI / 2 + 0.32, 0, 0], true);
-    return { eg, pupil, shine, lidPivot, lash, sx };
+  const irisTex = tex(256, 256, (g, w, h) => {
+    const c = w / 2, grd = g.createRadialGradient(c, c, 0, c, c, c);
+    grd.addColorStop(0, "#F2C94C"); grd.addColorStop(0.42, "#D9C14A"); grd.addColorStop(0.75, "#93B23D"); grd.addColorStop(0.95, "#4E6420"); grd.addColorStop(1, "#1E2510");
+    g.fillStyle = grd; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 420; i++) {
+      const a = Math.random() * Math.PI * 2, r0 = c * (0.12 + Math.random() * 0.2), r1 = c * (0.55 + Math.random() * 0.4);
+      g.strokeStyle = Math.random() < 0.5 ? "rgba(255,240,170,.18)" : "rgba(60,70,15,.2)"; g.lineWidth = 1 + Math.random() * 1.5;
+      g.beginPath(); g.moveTo(c + Math.cos(a) * r0, c + Math.sin(a) * r0); g.lineTo(c + Math.cos(a + 0.05) * r1, c + Math.sin(a + 0.05) * r1); g.stroke();
+    }
   });
-  // chvost
-  const tailSegs = [];
-  const tipM = std({ color: "#B8652A", roughness: 0.92 });
-  for (let i = 0; i < 28; i++) tailSegs.push(add(SPH, i > 22 ? tipM : furM, cat));
+  const irisM = new T.MeshStandardMaterial({ map: irisTex, roughness: 0.55, metalness: 0 });
+  const pupilM = new T.MeshBasicMaterial({ color: "#050302" });
+  const corneaM = new T.MeshPhysicalMaterial({ color: "#FFFFFF", transparent: true, opacity: 0.18, roughness: 0.03, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2, depthWrite: false });
+  const shineM = new T.MeshBasicMaterial({ color: "#FFFFFF", transparent: true, opacity: 0.95 });
+  const rimM = std({ color: lin("#2A1A10"), roughness: 0.5 });
+  const lashM = std({ color: lin("#2A1A10"), transparent: true, roughness: 0.6 });
+  const eyes = [-1, 1].map(sx => {
+    const eg = group(head, [sx * EYE_X, EYE_Y, EYE_Z], [0, sx * 0.26, 0]);
+    add(new T.SphereGeometry(0.08, 32, 24), std({ color: lin("#1E140C"), roughness: 0.8 }), eg, null, null, null, true);
+    const front = group(eg);
+    add(new T.CircleGeometry(0.104, 64), irisM, front, [0, 0, 0.085], null, null, true);
+    const pupil = add(new T.CircleGeometry(1, 48), pupilM, front, [0, 0, 0.0855], [0.06, 0.085, 1], null, true);
+    add(new T.TorusGeometry(0.106, 0.012, 10, 64), rimM, front, [0, 0, 0.083], null, null, true);
+    add(new T.SphereGeometry(0.122, 48, 32), corneaM, eg, null, null, null, true);
+    const shine = group(front);
+    add(new T.CircleGeometry(0.019, 24), shineM, shine, [-sx * 0.02 - 0.012, 0.038, 0.112], null, null, true);
+    add(new T.CircleGeometry(0.008, 16), shineM, shine, [0.035, -0.035, 0.114], null, null, true);
+    const lidPivot = group(eg);
+    furry(merge([part(new T.SphereGeometry(0.132, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), [0, 0, 0], [1, 1, 1])]), lidPivot, { color: "#E08C45", len: 0.022, spacing: 0.0045, shadow: false });
+    furry(merge([part(new T.SphereGeometry(0.13, 40, 12, 0, Math.PI * 2, Math.PI * 0.72, Math.PI * 0.28), [0, 0, 0], [1, 1, 1])]), eg, { color: "#E8A060", len: 0.018, spacing: 0.0045, shadow: false });
+    const lash = add(new T.TorusGeometry(0.136, 0.01, 8, 48, Math.PI), lashM, eg, null, null, [Math.PI / 2 + 0.32, 0, 0], true);
+    return { eg, pupil, front, lidPivot, lash, sx };
+  });
+  // chvost: jedna ohybná trubica, ktorú každý snímok prepočítame
+  const TN = 56, TRR = 18, TL = 2.6;
+  const tailGeo = new T.BufferGeometry();
+  const tPos = new Float32Array((TN + 1) * (TRR + 1) * 3), tNor = new Float32Array((TN + 1) * (TRR + 1) * 3);
+  const tFu = new Float32Array((TN + 1) * (TRR + 1) * 2), tK = new Float32Array((TN + 1) * (TRR + 1)).fill(1), tIdx = [];
+  for (let i = 0; i <= TN; i++) for (let j = 0; j <= TRR; j++) { const v = i * (TRR + 1) + j; tFu[v * 2] = i / TN * TL; tFu[v * 2 + 1] = j / TRR * 2 * Math.PI * 0.12; }
+  for (let i = 0; i < TN; i++) for (let j = 0; j < TRR; j++) { const a = i * (TRR + 1) + j, b = a + TRR + 1; tIdx.push(a, b, a + 1, b, b + 1, a + 1); }
+  tailGeo.setAttribute("position", new T.BufferAttribute(tPos, 3).setUsage(T.DynamicDrawUsage));
+  tailGeo.setAttribute("normal", new T.BufferAttribute(tNor, 3).setUsage(T.DynamicDrawUsage));
+  tailGeo.setAttribute("furUv", new T.BufferAttribute(tFu, 2)); tailGeo.setAttribute("furK", new T.BufferAttribute(tK, 1));
+  tailGeo.setIndex(tIdx);
+  furry(tailGeo, cat, { color: ORANGE, len: 0.085, spacing: 0.0075, mode: 3, noCull: true });
+  const tv = new T.Vector3(), tt = new T.Vector3(), tn = new T.Vector3(), tb = new T.Vector3(), tp0 = new T.Vector3(), tp1 = new T.Vector3(), up = new T.Vector3();
+  function updateTail(pointAt, radiusAt) {
+    for (let i = 0; i <= TN; i++) {
+      const u = i / TN;
+      pointAt(u, tv); pointAt(Math.max(0, u - 0.01), tp0); pointAt(Math.min(1, u + 0.01), tp1);
+      tt.subVectors(tp1, tp0).normalize();
+      up.set(0, 1, 0); if (Math.abs(tt.y) > 0.85) up.set(1, 0, 0);
+      tn.crossVectors(tt, up).normalize(); tb.crossVectors(tt, tn).normalize();
+      const r = radiusAt(u);
+      for (let j = 0; j <= TRR; j++) {
+        const a = j / TRR * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a), v = (i * (TRR + 1) + j) * 3;
+        const nx = tn.x * ca + tb.x * sa, ny = tn.y * ca + tb.y * sa, nz = tn.z * ca + tb.z * sa;
+        tPos[v] = tv.x + nx * r; tPos[v + 1] = tv.y + ny * r; tPos[v + 2] = tv.z + nz * r;
+        tNor[v] = nx; tNor[v + 1] = ny; tNor[v + 2] = nz;
+      }
+    }
+    tailGeo.attributes.position.needsUpdate = true; tailGeo.attributes.normal.needsUpdate = true;
+  }
 
   // nápisy
   const zz = [0, 1, 2].map(() => textSprite("Z", "#6C7FB5"));
@@ -1295,10 +1432,10 @@ window.Cat3D = function (box) {
       e.lidPivot.rotation.x = -1.1 + (1 - open) * 2.72;
       e.lidPivot.rotation.z = e.sx * st.annoy * 0.32;
       e.lash.material.opacity = Math.max(0, Math.min(1, (0.22 - open) * 6));
-      e.pupil.visible = e.shine.visible = open > 0.12;
+      e.front.visible = open > 0.12;
       const p = st.pupil;
-      e.pupil.scale.set(0.05 * (0.35 + 0.65 * p) * (1 + 0.6 * (1 - p) * 0), 0.1 * (0.55 + 0.45 * p), 0.035);
-      e.eg.scale.setScalar(1.12 * (1 + 0.12 * st.ex));
+      e.pupil.scale.set(0.104 * (0.09 + 0.36 * p * p), 0.104 * 0.8, 1);
+      e.eg.scale.setScalar(1 + 0.1 * st.ex);
     });
     // ústa a fúzy
     mouth.scale.setScalar(Math.max(0.001, st.mouth));
@@ -1307,16 +1444,13 @@ window.Cat3D = function (box) {
 
     // chvost
     const sway = Math.sin(t * (1 + st.sway * 3)) * st.sway;
-    tailSegs.forEach((s, i) => {
-      const u = i / (tailSegs.length - 1);
-      const phi = Math.PI * 0.9 - u * Math.PI * 0.72 + sway * 0.35 * u * u;
-      const ax = 1.12 * Math.sin(phi), az = -0.25 + 1.2 * Math.cos(phi), ay = 0.12 + 0.1 * Math.sin(Math.PI * u);
-      const bx = 0.45 + sway * 0.35 * u, bz = -1.35 - 0.1 * u, by = 0.35 + u * 1.65;
-      const m = st.tailUp;
-      s.position.set(lerp(ax, bx, m), lerp(ay, by, m), lerp(az, bz, m));
-      const r = (0.15 - u * 0.05) * (1 + 0.75 * st.puff);
-      s.scale.set(r, r, r);
-    });
+    const m = st.tailUp, pf = 1 + 0.8 * st.puff;
+    updateTail((u, out) => {
+      const phi = Math.PI * 0.92 - u * Math.PI * 0.74 + sway * 0.35 * u * u;
+      const ax = 1.1 * Math.sin(phi), az = -0.28 + 1.18 * Math.cos(phi), ay = 0.14 + 0.1 * Math.sin(Math.PI * u);
+      const bx = 0.42 + sway * 0.35 * u * u, bz = -1.3 - 0.15 * u, by = 0.38 + u * 1.6;
+      out.set(lerp(ax, bx, m), lerp(ay, by, m), lerp(az, bz, m));
+    }, u => (0.125 - 0.045 * u) * (u > 0.93 ? 1 - (u - 0.93) / 0.07 * 0.75 : 1) * pf);
 
     // nápisy
     zz.forEach((s, i) => {
