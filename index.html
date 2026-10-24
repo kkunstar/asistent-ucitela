@@ -393,6 +393,10 @@ body.board-mode .wrap { max-width: 1800px; }
 .cat-box[data-mood="3"] { background: var(--mood3); }
 .cat-box[data-mood="4"] { background: var(--mood4); }
 .cat { width: min(440px, 100%); height: auto; display: block; }
+.cat-box.has-3d { padding: 0; display: block; }
+.cat-box.has-3d .cat { display: none; }
+.cat3d { display: block; width: 100%; aspect-ratio: 4 / 3; }
+.panel:fullscreen .cat3d { aspect-ratio: auto; height: 58vh; }
 .cat .mo { transition: opacity .45s ease; }
 .cat .ear-l, .cat .ear-r { transition: transform .6s ease; transform-box: view-box; }
 .cat .ear-l { transform-origin: 98px 82px; }
@@ -986,6 +990,357 @@ body.board-mode .wrap { max-width: 1800px; }
   <footer>Asistent učiteľa · školský rok 2026/2027</footer>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* 3D mačka Micka pre hlukomer (Three.js r128); ak WebGL nefunguje, ostane SVG mačka */
+window.Cat3D = function (box) {
+  "use strict";
+  if (!window.THREE) return null;
+  const T = THREE;
+  const canvas = document.createElement("canvas");
+  canvas.className = "cat3d"; canvas.setAttribute("aria-hidden", "true");
+  let renderer;
+  try { renderer = new T.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }); } catch (e) { return null; }
+  box.appendChild(canvas); box.classList.add("has-3d");
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+  renderer.outputEncoding = T.sRGBEncoding;
+  renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+
+  const scene = new T.Scene();
+  scene.background = new T.Color("#F2E2CE");
+  const camera = new T.PerspectiveCamera(32, 4 / 3, 0.1, 100);
+  const look = new T.Vector3(0, 0.9, 0);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- pomocníci ---- */
+  const tex = (w, h, draw, rep) => {
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    draw(c.getContext("2d"), w, h);
+    const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4;
+    if (rep) { t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(rep[0], rep[1]); }
+    return t;
+  };
+  const std = o => new T.MeshStandardMaterial(Object.assign({ roughness: 0.85, metalness: 0 }, o));
+  const SPH = new T.SphereGeometry(1, 48, 32);
+  const add = (geo, m, parent, pos, scale, rot, noShadow) => {
+    const x = new T.Mesh(geo, m);
+    if (pos) x.position.set(pos[0], pos[1], pos[2]);
+    if (scale) x.scale.set(scale[0], scale[1], scale[2]);
+    if (rot) x.rotation.set(rot[0], rot[1], rot[2]);
+    x.castShadow = !noShadow; x.receiveShadow = true;
+    (parent || scene).add(x); return x;
+  };
+  const group = (parent, pos, rot) => { const g = new T.Group(); if (pos) g.position.set(pos[0], pos[1], pos[2]); if (rot) g.rotation.set(rot[0], rot[1], rot[2]); (parent || scene).add(g); return g; };
+
+  /* ---- textúry ---- */
+  const furTex = tex(1024, 512, (g, w, h) => {
+    const grd = g.createLinearGradient(0, 0, 0, h);
+    grd.addColorStop(0, "#E48B3E"); grd.addColorStop(0.55, "#EE9E52"); grd.addColorStop(1, "#F7CFA0");
+    g.fillStyle = grd; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 26000; i++) {
+      const x = Math.random() * w, y = Math.random() * h;
+      g.fillStyle = Math.random() < 0.5 ? "rgba(255,226,180,.16)" : "rgba(140,62,16,.12)";
+      g.fillRect(x, y, 1.2, 3 + Math.random() * 4);
+    }
+    g.lineCap = "round";
+    for (let i = 0; i < 16; i++) {
+      const x0 = (i + 0.5) * w / 16;
+      g.strokeStyle = "rgba(168,76,22,.5)"; g.lineWidth = 12 + Math.random() * 10;
+      g.beginPath();
+      for (let y = h * 0.04; y <= h * 0.5; y += 6) { const x = x0 + Math.sin(y * 0.04 + i * 1.7) * 9; y < h * 0.05 ? g.moveTo(x, y) : g.lineTo(x, y); }
+      g.stroke();
+    }
+  });
+  const headTex = tex(1024, 512, (g, w, h) => {
+    const grd = g.createLinearGradient(0, 0, 0, h);
+    grd.addColorStop(0, "#E48B3E"); grd.addColorStop(0.5, "#EE9E52"); grd.addColorStop(1, "#F5C48F");
+    g.fillStyle = grd; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 20000; i++) { g.fillStyle = Math.random() < 0.5 ? "rgba(255,226,180,.14)" : "rgba(140,62,16,.10)"; g.fillRect(Math.random() * w, Math.random() * h, 1.2, 3 + Math.random() * 3); }
+    g.lineCap = "round"; g.strokeStyle = "rgba(168,76,22,.55)";
+    for (let i = 0; i < 18; i++) { const x0 = (i + 0.5) * w / 18; g.lineWidth = 9; g.beginPath(); g.moveTo(x0, h * 0.02); g.lineTo(x0 + Math.sin(i) * 6, h * (0.16 + (i % 3) * 0.04)); g.stroke(); }
+  });
+  const woodTex = tex(512, 512, (g, w, h) => {
+    g.fillStyle = "#C79A6A"; g.fillRect(0, 0, w, h);
+    const tones = ["#C3935F", "#CDA273", "#BE8E5C", "#D2A877"];
+    for (let r = 0; r < 8; r++) {
+      g.fillStyle = tones[r % 4]; g.fillRect(0, r * h / 8, w, h / 8 - 3);
+      g.fillStyle = "rgba(90,55,25,.35)"; g.fillRect(0, r * h / 8 + h / 8 - 3, w, 3);
+      g.fillRect(((r * 197) % w), r * h / 8, 3, h / 8);
+      for (let k = 0; k < 40; k++) { g.fillStyle = "rgba(110,70,30,.08)"; g.fillRect(Math.random() * w, r * h / 8 + Math.random() * h / 8, 60 + Math.random() * 120, 1.5); }
+    }
+  }, [6, 6]);
+  const wallTex = tex(256, 256, (g, w, h) => {
+    g.fillStyle = "#F5E4CF"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#EFD2B0";
+    for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.beginPath(); g.arc(x * 64 + (y % 2) * 32 + 16, y * 64 + 16, 5, 0, Math.PI * 2); g.fill(); }
+  }, [14, 6]);
+  const skyTex = tex(512, 400, (g, w, h) => {
+    const grd = g.createLinearGradient(0, 0, 0, h);
+    grd.addColorStop(0, "#27386E"); grd.addColorStop(0.55, "#6A6FB0"); grd.addColorStop(1, "#F4A882");
+    g.fillStyle = grd; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(255,255,240,${0.4 + Math.random() * 0.6})`; g.beginPath(); g.arc(Math.random() * w, Math.random() * h * 0.6, Math.random() * 1.8 + 0.4, 0, Math.PI * 2); g.fill(); }
+    const mg = g.createRadialGradient(370, 95, 10, 370, 95, 90); mg.addColorStop(0, "rgba(255,246,210,.7)"); mg.addColorStop(1, "rgba(255,246,210,0)");
+    g.fillStyle = mg; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#FFF6D6"; g.beginPath(); g.arc(370, 95, 34, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(230,215,170,.6)"; [[358, 86, 7], [380, 106, 5], [372, 80, 3.5]].forEach(c => { g.beginPath(); g.arc(c[0], c[1], c[2], 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = "#3B4C7E"; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(130, h - 120, 260, h - 60); g.quadraticCurveTo(390, h - 140, w, h - 70); g.lineTo(w, h); g.fill();
+    g.fillStyle = "#2E3D69"; g.beginPath(); g.moveTo(0, h - 30); g.quadraticCurveTo(200, h - 90, w, h - 20); g.lineTo(w, h); g.lineTo(0, h); g.fill();
+  });
+  const rugTex = tex(512, 512, (g, w, h) => {
+    const cols = ["#9BC7C0", "#F3D9A6", "#E9A7A0", "#B9D3EC", "#F7EBD8"];
+    for (let i = 0; i < 9; i++) { g.fillStyle = cols[i % cols.length]; g.beginPath(); g.arc(w / 2, h / 2, w / 2 - i * 26, 0, Math.PI * 2); g.fill(); }
+  });
+  const yarnTex = tex(256, 256, (g, w, h) => {
+    g.fillStyle = "#E3799D"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "rgba(160,40,80,.45)"; g.lineWidth = 3;
+    for (let i = 0; i < 30; i++) { g.beginPath(); g.moveTo(0, i * 9); g.bezierCurveTo(80, i * 9 - 30, 170, i * 9 + 30, w, i * 9); g.stroke(); }
+  });
+  const pictureTex = tex(256, 200, (g, w, h) => {
+    g.fillStyle = "#FFFDF6"; g.fillRect(0, 0, w, h);
+    g.font = "bold 92px Bricolage Grotesque, system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+    [["A", "#E25A3A"], ["B", "#4256C4"], ["C", "#3C8D3A"]].forEach((l, i) => { g.fillStyle = l[1]; g.fillText(l[0], 52 + i * 76, 104 + (i % 2 ? -10 : 8)); });
+  });
+  const textSprite = (text, color, size) => {
+    const t = tex(256, 256, (g, w, h) => {
+      g.font = `900 ${size || 170}px Bricolage Grotesque, system-ui, sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+      g.lineWidth = 16; g.strokeStyle = "rgba(255,255,255,.95)"; g.strokeText(text, w / 2, h / 2 + 8);
+      g.fillStyle = color; g.fillText(text, w / 2, h / 2 + 8);
+    });
+    const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
+    scene.add(s); return s;
+  };
+
+  /* ---- izba ---- */
+  add(new T.PlaneGeometry(30, 30), std({ map: woodTex, roughness: 0.7 }), null, [0, 0, 0], null, [-Math.PI / 2, 0, 0], true);
+  add(new T.PlaneGeometry(30, 12), std({ map: wallTex, roughness: 0.95 }), null, [0, 6, -3.3], null, null, true);
+  add(new T.BoxGeometry(30, 0.28, 0.1), std({ color: "#FFF8EE" }), null, [0, 0.14, -3.24]);
+  const win = group(null, [1.9, 2.75, -3.24]);
+  add(new T.PlaneGeometry(2.0, 1.6), new T.MeshBasicMaterial({ map: skyTex, toneMapped: false }), win, [0, 0, 0.01], null, null, true);
+  const frameM = std({ color: "#FFFFFF", roughness: 0.6 });
+  [[0, 0.85, 2.3, 0.14], [0, -0.85, 2.3, 0.14], [-1.08, 0, 0.14, 1.84], [1.08, 0, 0.14, 1.84], [0, 0, 0.07, 1.6], [0, 0, 2.0, 0.07]].forEach(f => add(new T.BoxGeometry(f[2], f[3], 0.1), frameM, win, [f[0], f[1], 0.05]));
+  add(new T.BoxGeometry(2.6, 0.1, 0.32), frameM, win, [0, -0.95, 0.14], null, null, true);
+  const pic = group(null, [-1.9, 2.95, -3.24], [0, 0, 0.04]);
+  add(new T.BoxGeometry(1.25, 1.0, 0.08), std({ color: "#5B8DB8" }), pic, [0, 0, 0.04]);
+  add(new T.PlaneGeometry(1.08, 0.84), std({ map: pictureTex }), pic, [0, 0, 0.09], null, null, true);
+  add(new T.CylinderGeometry(2.5, 2.5, 0.03, 72), std({ map: rugTex, roughness: 1 }), null, [0, 0.015, 0.2], null, null, true);
+  // pelech
+  const bedM = std({ color: "#78AFC4", roughness: 0.95 });
+  add(new T.CylinderGeometry(1.45, 1.5, 0.2, 64), bedM, null, [0, 0.12, 0]);
+  add(new T.TorusGeometry(1.55, 0.22, 28, 72), std({ color: "#6A9FB5", roughness: 0.95 }), null, [0, 0.22, 0], null, [Math.PI / 2, 0, 0]);
+  // kvetina
+  const plant = group(null, [-2.75, 0, -1.9]);
+  add(new T.CylinderGeometry(0.38, 0.3, 0.62, 32), std({ color: "#C8714B" }), plant, [0, 0.31, 0]);
+  add(new T.CylinderGeometry(0.4, 0.4, 0.08, 32), std({ color: "#B4623F" }), plant, [0, 0.62, 0]);
+  const leafM = std({ color: "#5F9E58", roughness: 0.7 });
+  for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; add(SPH, leafM, plant, [Math.cos(a) * 0.22, 1.05 + (i % 3) * 0.1, Math.sin(a) * 0.22], [0.13, 0.48, 0.06], [Math.sin(a) * 0.5, -a, Math.cos(a) * 0.5]); }
+  // klbko
+  add(SPH, std({ map: yarnTex, roughness: 0.95 }), null, [2.25, 0.3, 1.05], [0.3, 0.3, 0.3], [0.4, 0.8, 0]);
+  add(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(2.0, 0.08, 1.2), new T.Vector3(1.7, 0.03, 1.6), new T.Vector3(1.2, 0.03, 1.5), new T.Vector3(1.0, 0.03, 1.9)]), 30, 0.025, 8), std({ color: "#E3799D" }), null, null, null, null, true);
+
+  /* ---- svetlá ---- */
+  const hemi = new T.HemisphereLight("#FFF3E2", "#B58A62", 0.8); scene.add(hemi);
+  const key = new T.DirectionalLight("#FFE3C0", 1.15);
+  key.position.set(3, 6.5, 4.5); key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024); key.shadow.camera.left = -4; key.shadow.camera.right = 4; key.shadow.camera.top = 4; key.shadow.camera.bottom = -4;
+  key.shadow.bias = -0.0006; key.shadow.radius = 5; scene.add(key);
+  const winLight = new T.PointLight("#A9BEFF", 0.35, 9); winLight.position.set(1.9, 2.7, -2.4); scene.add(winLight);
+  const alarm = new T.PointLight("#FF3B3B", 0, 9); alarm.position.set(0, 2.6, 2.2); scene.add(alarm);
+
+  /* ---- mačka ---- */
+  const furM = std({ map: furTex, roughness: 0.92 });
+  const creamM = std({ color: "#FCEBD6", roughness: 0.92 });
+  const pinkM = std({ color: "#F09AA8", roughness: 0.6 });
+  const inkM = std({ color: "#24150E", roughness: 0.4 });
+  const cat = group(null, [0, 0.22, 0.05]);
+  const breathe = group(cat, [0, 0.05, 0]);
+  add(SPH, furM, breathe, [0, 0.55, -0.4], [0.95, 0.66, 1.2], [0, Math.PI / 2, 0]);
+  add(SPH, furM, breathe, [-0.55, 0.42, -0.85], [0.44, 0.4, 0.62]);
+  add(SPH, furM, breathe, [0.55, 0.42, -0.85], [0.44, 0.4, 0.62]);
+  add(SPH, furM, breathe, [0, 0.55, 0.2], [0.72, 0.6, 0.62]);
+  add(SPH, creamM, breathe, [0, 0.47, 0.5], [0.5, 0.43, 0.32]);
+  add(SPH, creamM, cat, [-0.32, 0.12, 0.66], [0.2, 0.13, 0.32]);
+  add(SPH, creamM, cat, [0.32, 0.12, 0.66], [0.2, 0.13, 0.32]);
+
+  // hlava
+  const head = group(cat, [0, 1.1, 0.5]);
+  const headM = std({ map: headTex, roughness: 0.92 });
+  add(SPH, headM, head, [0, 0, 0], [0.67, 0.58, 0.56], [0, -Math.PI / 2, 0]);
+  add(SPH, headM, head, [-0.3, -0.2, 0.25], [0.3, 0.26, 0.28]);
+  add(SPH, headM, head, [0.3, -0.2, 0.25], [0.3, 0.26, 0.28]);
+  add(SPH, creamM, head, [-0.1, -0.2, 0.46], [0.16, 0.14, 0.15]);
+  add(SPH, creamM, head, [0.1, -0.2, 0.46], [0.16, 0.14, 0.15]);
+  add(SPH, creamM, head, [0, -0.3, 0.4], [0.12, 0.09, 0.1]);
+  add(SPH, pinkM, head, [0, -0.08, 0.6], [0.07, 0.05, 0.045]);
+  const blushM = std({ color: "#F4A3A6", transparent: true, opacity: 0.55, roughness: 1 });
+  add(SPH, blushM, head, [-0.36, -0.15, 0.43], [0.09, 0.06, 0.03], [0, -0.6, 0], true);
+  add(SPH, blushM, head, [0.36, -0.15, 0.43], [0.09, 0.06, 0.03], [0, 0.6, 0], true);
+  // ústa
+  const lineM = std({ color: "#3A2216", transparent: true, roughness: 0.6 });
+  const smile = group(head, [0, -0.215, 0.6]);
+  [-1, 1].forEach(sx => add(new T.TorusGeometry(0.05, 0.011, 6, 20, Math.PI), lineM, smile, [sx * 0.05, 0, 0], null, [0.25, 0, Math.PI], true));
+  add(new T.CylinderGeometry(0.009, 0.009, 0.06, 6), lineM, smile, [0, 0.03, 0], null, null, true);
+  const mouth = group(head, [0, -0.31, 0.58]);
+  add(SPH, std({ color: "#4A161C", roughness: 0.5 }), mouth, [0, 0, 0], [0.13, 0.11, 0.07]);
+  add(SPH, pinkM, mouth, [0, -0.065, 0.035], [0.06, 0.022, 0.035]);
+  const fangM = std({ color: "#FFFFFF", roughness: 0.3 });
+  [-0.05, 0.05].forEach(x => add(new T.ConeGeometry(0.018, 0.06, 12), fangM, mouth, [x, 0.06, 0.05], null, [Math.PI, 0, 0]));
+  mouth.scale.setScalar(0.001);
+  // fúzy
+  const whM = std({ color: "#FFFFFF", roughness: 0.5 });
+  const whiskers = [];
+  [-1, 1].forEach(sx => {
+    const wg = group(head, [sx * 0.2, -0.2, 0.52]);
+    [0.12, 0, -0.12].forEach((a, i) => add(new T.CylinderGeometry(0.005, 0.0025, 0.62, 5), whM, wg, [sx * 0.3, -i * 0.035 + 0.03, 0.02], null, [0, 0, Math.PI / 2 + sx * a], true));
+    whiskers.push(wg);
+  });
+  // uši
+  const ears = [-1, 1].map(sx => {
+    const eg = group(head, [sx * 0.36, 0.36, 0.0], [0, 0, -sx * 0.32]);
+    add(new T.ConeGeometry(0.24, 0.5, 32), furM, eg, [0, 0.2, 0], [1, 1, 0.55]);
+    add(new T.ConeGeometry(0.16, 0.36, 32), pinkM, eg, [0, 0.16, 0.06], [1, 1, 0.4]);
+    eg.userData.sx = sx; return eg;
+  });
+  // oči
+  const irisM = std({ color: "#A9C94A", roughness: 0.2, emissive: "#2C3A08", emissiveIntensity: 0.25 });
+  const pupilM = std({ color: "#0D0906", roughness: 0.15 });
+  const shineM = new T.MeshBasicMaterial({ color: "#FFFFFF" });
+  const lidM = std({ color: "#D9792F", roughness: 0.95 });
+  const lashM = std({ color: "#3A2216", transparent: true, roughness: 0.6 });
+  const eyes = [-1, 1].map(sx => {
+    const eg = group(head, [sx * 0.21, 0.05, 0.47], [0, sx * 0.22, 0]);
+    eg.userData.base = 1.12;
+    add(SPH, irisM, eg, [0, 0, 0], [0.135, 0.135, 0.135], null, true);
+    const pupil = add(SPH, pupilM, eg, [0, 0, 0.11], [0.05, 0.1, 0.035], null, true);
+    const shine = group(eg);
+    add(SPH, shineM, shine, [sx * -0.035 + 0.01, 0.05, 0.124], [0.022, 0.022, 0.01], null, true);
+    add(SPH, shineM, shine, [0.04, -0.045, 0.124], [0.01, 0.01, 0.005], null, true);
+    const lidPivot = group(eg);
+    add(new T.SphereGeometry(0.158, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), lidM, lidPivot, null, null, null, true);
+    add(new T.SphereGeometry(0.156, 32, 16, 0, Math.PI * 2, Math.PI * 0.7, Math.PI * 0.3), lidM, eg, null, null, null, true);
+    const lash = add(new T.TorusGeometry(0.16, 0.014, 8, 40, Math.PI), lashM, eg, [0, 0, 0], null, [Math.PI / 2 + 0.32, 0, 0], true);
+    return { eg, pupil, shine, lidPivot, lash, sx };
+  });
+  // chvost
+  const tailSegs = [];
+  const tipM = std({ color: "#B8652A", roughness: 0.92 });
+  for (let i = 0; i < 28; i++) tailSegs.push(add(SPH, i > 22 ? tipM : furM, cat));
+
+  // nápisy
+  const zz = [0, 1, 2].map(() => textSprite("Z", "#6C7FB5"));
+  const qSprite = textSprite("?!", "#E0782E", 140);
+  const exSprite = textSprite("!!", "#E23B45", 150);
+
+  /* ---- nálady ---- */
+  const KEYS = ["open", "ear", "mouth", "puff", "shake", "tailUp", "headUp", "annoy", "pupil", "zz", "q", "ex", "amp", "rate", "sway", "alarm"];
+  const MOODS = [
+    { open: 0, ear: 0, mouth: 0, puff: 0, shake: 0, tailUp: 0, headUp: 0, annoy: 0, pupil: 1, zz: 1, q: 0, ex: 0, amp: 0.04, rate: 1.5, sway: 0.12, alarm: 0 },
+    { open: 0.2, ear: 0.05, mouth: 0, puff: 0, shake: 0, tailUp: 0, headUp: 0.35, annoy: 0, pupil: 1, zz: 0.4, q: 0, ex: 0, amp: 0.03, rate: 2.2, sway: 0.3, alarm: 0 },
+    { open: 1, ear: 0, mouth: 0, puff: 0, shake: 0, tailUp: 0.15, headUp: 1, annoy: 0, pupil: 1, zz: 0, q: 0, ex: 0, amp: 0.02, rate: 2.8, sway: 0.45, alarm: 0 },
+    { open: 0.55, ear: 0.55, mouth: 0, puff: 0.2, shake: 0, tailUp: 0.45, headUp: 1, annoy: 1, pupil: 0.7, zz: 0, q: 1, ex: 0, amp: 0.025, rate: 3.6, sway: 0.9, alarm: 0.15 },
+    { open: 1, ear: 1, mouth: 1, puff: 1, shake: 1, tailUp: 1, headUp: 1.1, annoy: 0, pupil: 0.45, zz: 0, q: 0, ex: 1, amp: 0.03, rate: 6, sway: 1.5, alarm: 1 }
+  ];
+  const st = Object.assign({}, MOODS[0]);
+  let mood = 0, t = 0, last = performance.now(), blinkUntil = 0, nextBlink = 2, twitchUntil = 0, nextTwitch = 3, peekUntil = 0;
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    const d = 6.3 * Math.max(1, 1.25 / camera.aspect);
+    camera.position.set(0, 1.75, d); camera.lookAt(look);
+    camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas); else window.addEventListener("resize", resize);
+
+  const lerp = (a, b, k) => a + (b - a) * k;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (document.hidden || !box.offsetParent || !canvas.clientWidth) return;
+    if (Math.abs(canvas.width - Math.round(canvas.clientWidth * renderer.getPixelRatio())) > 1 || Math.abs(canvas.height - Math.round(canvas.clientHeight * renderer.getPixelRatio())) > 1) resize();
+    t += dt;
+    const tg = MOODS[mood], k = 1 - Math.exp(-dt * 2.6);
+    KEYS.forEach(n => { st[n] = lerp(st[n], tg[n], n === "mouth" || n === "shake" ? 1 - Math.exp(-dt * 5) : k); });
+
+    // žmurkanie, šklbnutie uší, pootvorenie oka v driemote
+    if (t > nextBlink) { blinkUntil = t + 0.13; nextBlink = t + 2.5 + Math.random() * 3.5; }
+    if (t > nextTwitch) { twitchUntil = t + 0.25; nextTwitch = t + 3 + Math.random() * 5; if (mood === 1) peekUntil = t + 1.1; }
+    let open = st.open;
+    if (tg.open > 0.5 && t < blinkUntil) open *= 0.05;
+    if (mood === 1 && t < peekUntil) open = Math.max(open, 0.5);
+
+    // dýchanie a naježenie
+    const br = 1 + st.amp * Math.sin(t * st.rate);
+    const puff = 1 + 0.07 * st.puff;
+    breathe.scale.set(puff * (1 + (br - 1) * 0.4), br * puff, puff);
+    const shake = reduce ? 0 : st.shake;
+    cat.position.x = shake * 0.025 * Math.sin(t * 47);
+
+    // hlava
+    const hu = st.headUp;
+    head.position.y = 1.1 - 0.1 * (1 - Math.min(1, hu)) + 0.04 * Math.max(0, hu - 1) + (br - 1) * 0.5;
+    head.position.x = shake * 0.03 * Math.sin(t * 55);
+    head.rotation.x = 0.1 * (1 - Math.min(1, hu)) - 0.12 * Math.min(1, hu);
+    head.rotation.z = 0.13 * (1 - Math.min(1, hu)) + shake * 0.03 * Math.sin(t * 40);
+    head.rotation.y = Math.min(1, hu) * (1 - st.ex) * (1 - 0.6 * st.annoy) * 0.32 * Math.sin(t * 0.55) + st.annoy * 0.12;
+
+    // uši
+    const tw = t < twitchUntil ? Math.sin((twitchUntil - t) * 40) * 0.12 : 0;
+    ears.forEach(e => { e.rotation.z = -e.userData.sx * (0.32 + st.ear * 0.85) + (e.userData.sx > 0 ? tw : 0); e.rotation.x = -st.ear * 0.55; });
+
+    // oči
+    eyes.forEach(e => {
+      e.lidPivot.rotation.x = -1.1 + (1 - open) * 2.72;
+      e.lidPivot.rotation.z = e.sx * st.annoy * 0.32;
+      e.lash.material.opacity = Math.max(0, Math.min(1, (0.22 - open) * 6));
+      e.pupil.visible = e.shine.visible = open > 0.12;
+      const p = st.pupil;
+      e.pupil.scale.set(0.05 * (0.35 + 0.65 * p) * (1 + 0.6 * (1 - p) * 0), 0.1 * (0.55 + 0.45 * p), 0.035);
+      e.eg.scale.setScalar(1.12 * (1 + 0.12 * st.ex));
+    });
+    // ústa a fúzy
+    mouth.scale.setScalar(Math.max(0.001, st.mouth));
+    lineM.opacity = 1 - st.mouth;
+    whiskers.forEach((w, i) => { w.rotation.z = (i ? -1 : 1) * (0.05 * Math.sin(t * 1.3) + st.ex * 0.25); });
+
+    // chvost
+    const sway = Math.sin(t * (1 + st.sway * 3)) * st.sway;
+    tailSegs.forEach((s, i) => {
+      const u = i / (tailSegs.length - 1);
+      const phi = Math.PI * 0.9 - u * Math.PI * 0.72 + sway * 0.35 * u * u;
+      const ax = 1.12 * Math.sin(phi), az = -0.25 + 1.2 * Math.cos(phi), ay = 0.12 + 0.1 * Math.sin(Math.PI * u);
+      const bx = 0.45 + sway * 0.35 * u, bz = -1.35 - 0.1 * u, by = 0.35 + u * 1.65;
+      const m = st.tailUp;
+      s.position.set(lerp(ax, bx, m), lerp(ay, by, m), lerp(az, bz, m));
+      const r = (0.15 - u * 0.05) * (1 + 0.75 * st.puff);
+      s.scale.set(r, r, r);
+    });
+
+    // nápisy
+    zz.forEach((s, i) => {
+      const p = ((t * 0.32) + i / 3) % 1;
+      s.position.set(0.55 + p * 0.7, 1.75 + p * 1.0, 0.6);
+      s.scale.setScalar(0.22 + p * 0.28);
+      s.material.opacity = st.zz * Math.sin(Math.PI * p);
+    });
+    qSprite.position.set(0.95, 2.15 + 0.05 * Math.sin(t * 3), 0.6); qSprite.scale.setScalar(0.55); qSprite.material.opacity = st.q;
+    exSprite.position.set(1.0, 2.25 + 0.08 * Math.sin(t * 9), 0.6); exSprite.scale.setScalar(0.62 + 0.05 * Math.sin(t * 12)); exSprite.material.opacity = st.ex;
+
+    // svetlo podľa nálady
+    alarm.intensity = st.alarm * 1.4 * (0.65 + 0.35 * Math.sin(t * 9));
+    hemi.intensity = 0.8 - 0.12 * (1 - Math.min(1, hu));
+    camera.position.x = Math.sin(t * 0.12) * 0.15;
+    camera.lookAt(look);
+    renderer.render(scene, camera);
+  }
+  resize();
+  requestAnimationFrame(frame);
+  return { setMood(m) { mood = Math.max(0, Math.min(4, m | 0)); } };
+};
+</script>
+
 <script>
 (function () {
   "use strict";
@@ -1477,6 +1832,8 @@ body.board-mode .wrap { max-width: 1800px; }
   const N = { stream: null, ctx: null, analyser: null, buf: null, timer: 0, level: 0, awake: 0, mood: 0, hist: [], quietMs: 0, overMs: 0, count: 0, last: 0, demo: false, running: false };
   const MOOD_TEXT = ["Psst… Micka spí.", "Micka sa vrtí, je trochu hlučno.", "Micka sa zobudila.", "Micke sa to nepáči! Stíšte sa.", "Príliš veľký hluk! Micka je rozrušená."];
   const catBox = $("#catBox");
+  let cat3d = null;
+  try { if (window.Cat3D) cat3d = window.Cat3D(catBox); } catch (e) { cat3d = null; }
   const moEls = $$(".cat .mo").map(el => ({ el, moods: el.dataset.moods.split(" ").map(Number) }));
   const limit = () => +$("#limitRange").value;
   function setMood(m) {
@@ -1484,6 +1841,7 @@ body.board-mode .wrap { max-width: 1800px; }
     N.shown = true;
     if (m === 4 && N.mood !== 4) { N.count++; $("#stCount").textContent = N.count; }
     N.mood = m; catBox.dataset.mood = m;
+    if (cat3d) cat3d.setMood(m);
     moEls.forEach(o => { o.el.style.opacity = o.moods.includes(m) ? 1 : 0; });
     $("#moodText").textContent = MOOD_TEXT[m];
   }
